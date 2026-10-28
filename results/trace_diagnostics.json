@@ -1,0 +1,62 @@
+[
+  {
+    "dataset": "qsort",
+    "references": 524,
+    "unique_pages": 192,
+    "repeated_references": 332,
+    "minimum_reuse_distance": 20,
+    "minimum_intervening_references": 20,
+    "lru_faults_from_reuse_distances": {
+      "5": 524,
+      "10": 524,
+      "20": 524,
+      "50": 199,
+      "100": 199
+    }
+  },
+  {
+    "dataset": "lu",
+    "references": 41832,
+    "unique_pages": 531,
+    "repeated_references": 41301,
+    "minimum_reuse_distance": 20,
+    "minimum_intervening_references": 20,
+    "lru_faults_from_reuse_distances": {
+      "5": 41832,
+      "10": 41832,
+      "20": 41832,
+      "50": 28475,
+      "100": 26497
+    }
+  },
+  {
+    "dataset": "mm16",
+    "references": 9075,
+    "unique_pages": 515,
+    "repeated_references": 8560,
+    "minimum_reuse_distance": 20,
+    "minimum_intervening_references": 20,
+    "lru_faults_from_reuse_distances": {
+      "5": 9075,
+      "10": 9075,
+      "20": 9075,
+      "50": 2964,
+      "100": 2964
+    }
+  },
+  {
+    "dataset": "mm32",
+    "references": 67235,
+    "unique_pages": 1667,
+    "repeated_references": 65568,
+    "minimum_reuse_distance": 20,
+    "minimum_intervening_references": 20,
+    "lru_faults_from_reuse_distances": {
+      "5": 67235,
+      "10": 67235,
+      "20": 67235,
+      "50": 51860,
+      "100": 19604
+    }
+  }
+]

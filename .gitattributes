@@ -1,0 +1,7 @@
+* text=auto eol=lf
+# Preserve original trace bytes and generated CSV byte-for-byte for checksums/replay.
+data/*.txt -text
+results/*.csv -text
+*.png binary
+data/* linguist-vendored=true
+results/* linguist-generated=true

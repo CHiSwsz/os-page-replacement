@@ -1,0 +1,26 @@
+name: Build and test
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        sanitizers: ['OFF', 'ON']
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DENABLE_SANITIZERS=${{ matrix.sanitizers }}
+      - name: Build
+        run: cmake --build build -j4
+      - name: Tests
+        run: ctest --test-dir build --output-on-failure
+      - name: Verify recorded course results
+        if: matrix.sanitizers == 'OFF'
+        run: |
+          python3 scripts/experiments.py --out build/reproduced
+          diff results/raw.csv build/reproduced/raw.csv
+          diff results/summary.csv build/reproduced/summary.csv
+          python3 scripts/analyze_traces.py --results build/reproduced
+          diff results/trace_diagnostics.json build/reproduced/trace_diagnostics.json

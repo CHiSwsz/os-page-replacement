@@ -1,0 +1,2 @@
+# Only needed to regenerate charts; simulator and tests have no Python package dependencies.
+matplotlib==3.9.2
