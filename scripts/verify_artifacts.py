@@ -58,18 +58,34 @@ def main():
             check(len(candidates)==1 and int(row[a])==int(candidates[0]["faults"]),"seed-0 table value")
     aggregate_check(read("parameters_raw.csv"),read("parameters_summary.csv"),["window_factor","history_factor","dataset","frames"])
     aggregate_check(read("synthetic_raw.csv"),read("synthetic_summary.csv"),["dataset","frames","algorithm"])
+    fg=aggregate_check(read("fresh_raw.csv"),read("fresh_summary.csv"),["dataset","frames","algorithm"])
+    for (_,_,algorithm),group in fg.items():
+        expected=set(range(30)) if algorithm in {'random','adaptive','adaptive_v2'} else {''}
+        seeds={int(r['seed']) for r in group} if algorithm in {'random','adaptive','adaptive_v2'} else {r['seed'] for r in group}
+        check(seeds==expected,'fresh complete seed range')
+    fresh=json.loads((ROOT/"results/fresh_metadata.json").read_text())
+    check(len(read("fresh_raw.csv"))==fresh["rows"],"fresh row count")
+    for case in fresh["cases"]:
+        check(hashlib.sha256((ROOT/"results/fresh_traces"/(case["name"]+".txt")).read_bytes()).hexdigest()==case["sha256"],"fresh trace hash")
     versions=read("versions_raw.csv")
     vg=aggregate_check(versions,read("versions_summary.csv"),["version","dataset","frames"])
     for (version,dataset,frames),group in vg.items():
         check({int(r['seed']) for r in group}==set(range(30)),"version seed range")
-        if version=='2':
+        if version=='3':
             expected={r['seed']:r['faults'] for r in groups[(dataset,frames,'adaptive')]}
-            check(all(r['faults']==expected[r['seed']] for r in group),'V2 agrees with formal results')
+            check(all(r['faults']==expected[r['seed']] for r in group),'V3 agrees with formal results')
     for r in read('version_comparison.csv'):
-        for v in [1,2]:
+        for v in [1,2,3]:
             expected=statistics.mean(int(x['faults']) for x in vg[(str(v),r['dataset'],r['frames'])])
             check(math.isclose(float(r[f'v{v}']),expected), 'version comparison mean')
-        check(math.isclose(float(r['difference']),float(r['v2'])-float(r['v1']),abs_tol=1e-9),'version difference')
+        check(math.isclose(float(r['difference']),float(r['v3'])-float(r['v2']),abs_tol=1e-9),'version difference')
+    search=read('v3_search.csv')
+    check(len(search)==1500 and len({r['variant'] for r in search})==15,'complete candidate search')
+    for r in search:
+        if r['variant'] in {'fast_dev0','v2'}:
+            version='3' if r['variant']=='fast_dev0' else '2'
+            reference=next(x for x in vg[(version,r['dataset'],r['frames'])] if x['seed']==r['seed'])
+            check(all(r[k]==reference[k] for k in reference if k!='version'),'exploratory/final implementation agreement')
     supplemental=json.loads((ROOT/"results/supplementary_metadata.json").read_text())
     for case in supplemental["synthetic_cases"]:
         check(hashlib.sha256((ROOT/"results/synthetic_traces"/(case["name"]+".txt")).read_bytes()).hexdigest()==case["sha256"],"synthetic trace hash")

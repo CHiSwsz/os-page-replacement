@@ -1,5 +1,5 @@
 {
-  "generated_at_utc": "2026-10-28T13:17:00.867409+00:00",
+  "generated_at_utc": "2026-10-28T17:28:04.621484+00:00",
   "platform": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.39",
   "python": "3.12.3 (main, Aug 31 2026, 10:18:26) [GCC 13.3.0]",
   "compiler": "c++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
@@ -52,14 +52,14 @@
   "adaptive_options": {
     "window_factor": 4,
     "history_factor": 16,
-    "version": 2
+    "version": 3
   },
-  "adaptive_policy": "past-only Random/LRU/predict selector; V2 frames>20 doubles W, margin W/20, resets shadow metadata from actual every W; physical frames retained",
+  "adaptive_policy": "past-only Random/LRU/predict selector; V3 uses EWMA alpha=0.5 without deviation penalty, halves history factor for frames>20; V2 frames>20 doubles W, margin W/20, resets shadow metadata from actual every W; physical frames retained",
   "random_stddev": "sample standard deviation, ddof=1; variation across seeds on a fixed trace",
   "lfu_policy": "current-residency count; reset to 1 on insertion; ties by least-recent use",
   "initial_memory": "empty for every simulation",
   "prefetch": false,
-  "binary_sha256": "274fc3945e7baaa1ef8654c59c86e54aac6d4c5de14eb67aa9e6f4bf9159ea88",
+  "binary_sha256": "668b0ee3748fd8387cf3512500889427da40bf270a5d3aabbb957d9649404724",
   "datasets": [
     {
       "name": "qsort",
@@ -92,22 +92,25 @@
   ],
   "source_sha256": {
     "CMakeLists.txt": "a7747e15961868463a745b410ea3ffdbace1667d7172fca98a01bcb13aeaac55",
-    "include/paging.hpp": "bf3dfb3667e65dc2bf0d4b3b6e08bab7f43aca19d9bd24a9e8459c03a3ceb1bf",
+    "include/paging.hpp": "b15fe8e0cc0f839e100f98353997b86a68c1388c817a551f88e0498da1c9773f",
     "scripts/analyze_traces.py": "b28c33a43f000967702655de3c522593bd9221c04c52645c7494655116b71928",
     "scripts/benchmark_overhead.py": "1d8c6dd9fa79b9923f40097214c257f8844e0094bffaf563bc526dd22049ba76",
-    "scripts/compare_versions.py": "d325b82524a427d97b111cd8bea9d518d7b5d2ccb20560a6beec596d177c4f04",
-    "scripts/experiments.py": "01e0efd2d96b2e6ae583250f96bfd78bdbd0079b5269a37dcf53a678aecba8bd",
+    "scripts/compare_versions.py": "5486315120cdbd027f13343bfd198a2a210b0cabbf0c5b827a029f2ae30411b8",
+    "scripts/experiments.py": "c38366641cf48bd249af6beb70603f8e5d6d178aac3fef4ca4f4788c46b07e8e",
     "scripts/explore_candidates.py": "87971e6e430256e448c2668a1684d2d655b267919ed7b0fc04259ca695a5d509",
+    "scripts/explore_v3.py": "70b94012fc71368c23e48903ae2d63922e2bcf819c87490e9cd544eba18af725",
+    "scripts/fresh_stress.py": "2cc716a6e8a4d930a5682489d9b8729a06205679029ccc1f4b619488f88cc92b",
     "scripts/import_traces.py": "e9c5006da86749974740d238fbe276c8dc1a67cb854857a7c7d480fb9a339441",
-    "scripts/make_report.py": "186dd627857063ec58ac872410ab032745165d6ded98312589b0e0b589e84dd3",
-    "scripts/plot_comparisons.py": "02019241e6ebb2d7ab748e956af2556c45c644980d1f0994dc8e616c6d2660bd",
+    "scripts/make_report.py": "4d8aa13de81c174ba86b43a2d2fd074c95579e67447310a805342019e50a73be",
+    "scripts/plot_comparisons.py": "174d07c7c2218df8a9704a0b164546b702ce7ce34e1d69338d592efd0e7c788e",
     "scripts/plot_results.py": "09d35d73892858fa5ad078534e9b90ffd30343ce0b13cea9bdbbe60a28d61e1b",
-    "scripts/supplementary_experiments.py": "622ccdbba3fc2cd4fbda8071c8406ac8d1d1310d2cdca4318370c6c0798c0cbb",
-    "scripts/verify_artifacts.py": "c7eecae7d9497b7c2eff5c798211488cecde0958c178bbbe9e18e748f4e1960e",
-    "src/adaptive.cpp": "9bef02ef92882d6f6bcc1e3ffd2386df8ed628f39ce012865fd1d94bc41393e0",
-    "src/main.cpp": "fb1c700cb311e1b6d6c953a3e9ba61c5468b018f7db2795bf81d81d9ae623915",
+    "scripts/supplementary_experiments.py": "e553a6b89c94f822200c55cb72c620e562bb69efa47122f6aadabb9980bba362",
+    "scripts/verify_artifacts.py": "63fd8d7a94f9fc57023c91a68663ea4b19bc974355ea53d36d44b68f6af64fc5",
+    "src/adaptive.cpp": "7bf0de5f2deae0f1a99cb7dbd07e175fde0004f03ad0d7816da3f7afeccd7b10",
+    "src/main.cpp": "3cbf04a21e7ee987e7c58e5bd452184a725bb49cf59a25705ecb8899a3c23339",
     "src/paging.cpp": "cfd6074cbfc6f441cf6230f1c5854980f92feeee702171d142bb5bf4f7b702e5",
-    "tests/test_cli.py": "f309f1f8db321590cd2a5f83e23bb6de3b3206a705d393aedb19f3b95911cd37",
-    "tests/test_paging.cpp": "b8031f6b0346a88c3a61bc7ad2b02a9b9985b38b29a422d465d4db04907e85e5"
-  }
+    "tests/test_cli.py": "c900b0da74fe508d9492456111240a6e6b18f11c0555c3844354b31ed8b10abe",
+    "tests/test_paging.cpp": "b102f159668b214833ba908f67a562aa77e177ae44e7869d8e7af560545a0047"
+  },
+  "source_snapshot_note": "Reporting and audit tooling finalized after simulation; C++ implementation and experiment rules unchanged. Source hashes cover the final submitted tooling."
 }

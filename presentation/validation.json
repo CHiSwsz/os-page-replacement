@@ -1,7 +1,7 @@
 {
   "file": "page-replacement.pptx",
-  "sha256": "2f064a55618d4a6c94ec90d5d2d041448e24c1ad9b5f1d9923b34ee9134bbdc0",
-  "bytes": 144631,
+  "sha256": "bf13da06a540fcd099c317582e7df49cdbd10a9f1bd6685ee6ef94b3940e8c44",
+  "bytes": 145227,
   "template_filename": "第三讲_反向传播_修订版_v22.pptx",
   "template_sha256": "8d097f1cbe81ae942b6abf1816772c04fad5bf345642986f5aeaaeeadc9572fa",
   "slide_count": 21,
@@ -15,15 +15,16 @@
   "text_overflows": 0,
   "finalized_vs_reviewed_pixels_identical": true,
   "PowerPoint_edit_save_reopen_chart_and_table_passed": true,
-  "independent_csv_values_checked": 390,
+  "independent_csv_values_checked": 389,
   "speaker_notes_with_sources": 21,
   "data_sha256": {
-    "timing_summary.csv": "739df772fb52060ec9ab2d5d9f8c2b50a48af53bbac423a3da51727627e38733",
-    "version_comparison.csv": "9f82158f33dfc7f32c7e90c5fec681cb84d66308b58733b0e0bb9648a5523699",
-    "overall.csv": "25d29152b5a8cdbfacaaddf93afb752834db66d0703a4dcd979272360390b348",
-    "parameters_summary.csv": "aebe58e857fdb1f25e5d680843cd7f11cdf6c2af033a581f3bac7921ceb6a84f",
-    "synthetic_summary.csv": "3d5220377304bd27ded962157dc903ca0e4c8e8355f2debba224160abb39aa78",
-    "summary.csv": "e3349dca9fb23967c9ac0afabe1de990dfa4b3e8e36fafef0042474727f34c7c"
+    "timing_summary.csv": "f4a9a1258ed06be6b49f9eb11b60bf3e09814ff42816c2f01963d422690cfba8",
+    "version_comparison.csv": "9bacd0c2cb07caa66f59cad82efc0114ddef2b2936232215ed27faaf80a1a382",
+    "overall.csv": "d450e000b0712be87c3bd4ccdf52a05e91a6cbed6da4eb42dabfdbb107b75f77",
+    "parameters_summary.csv": "007df9f384abf70b7c4d20f50e1070ebb80cb91b4875ba1b24a9360e26ff554b",
+    "synthetic_summary.csv": "bed2e015372f9f8f4c972579ec04e5e22401e33c1cd38c33d124e700e86b1ef9",
+    "summary.csv": "11eaeb6cd1c35a931533ef4f984b2222dfe5f2bbe89a5d2d1ea5ced5859b8ae4",
+    "fresh_summary.csv": "b2ad39d4aca2d7cc7b38ff93c6cddd1dc9da9dbdb7a4ad53af05c070a4ac5d78"
   },
   "scope": "PowerPoint validated. Google Slides not tested."
 }

@@ -30,10 +30,11 @@ class History {
         std::list<Page>::iterator position;
     };
     std::size_t limit_;
+    bool fast_;
     std::list<Page> order_;
     std::unordered_map<Page, Record> records_;
 public:
-    explicit History(std::size_t limit) : limit_(limit) {}
+    History(std::size_t limit, bool fast) : limit_(limit), fast_(fast) {}
     std::size_t size() const { return records_.size(); }
 
     void observe(Page page, std::size_t now) {
@@ -42,8 +43,12 @@ public:
             auto& record = found->second;
             const double gap = static_cast<double>(now - record.last);
             if (record.repeated) {
-                record.deviation = 0.75 * record.deviation + 0.25 * std::abs(gap - record.gap);
-                record.gap = 0.75 * record.gap + 0.25 * gap;
+                if (fast_) {
+                    record.gap = 0.5 * record.gap + 0.5 * gap;
+                } else {
+                    record.deviation = 0.75 * record.deviation + 0.25 * std::abs(gap - record.gap);
+                    record.gap = 0.75 * record.gap + 0.25 * gap;
+                }
             } else {
                 record.gap = gap;
                 record.repeated = true;
@@ -67,7 +72,7 @@ public:
         }
         const auto& record = found->second;
         const double age = static_cast<double>(now - record.last);
-        const double estimate = record.gap + record.deviation;
+        const double estimate = record.gap + (fast_ ? 0 : record.deviation);
         // Unseen/one-use pages receive no protection. An overdue prediction
         // loses protection as it ages, rather than pinning a formerly hot page.
         return age < estimate ? estimate - age : age;
@@ -130,15 +135,21 @@ public:
 Result simulate_adaptive(const std::vector<Page>& trace, std::size_t capacity,
                          std::uint64_t seed, bool record_events, AdaptiveOptions options) {
     if (capacity == 0) throw std::invalid_argument("frame count must be positive");
+    if (options.version < 1 || options.version > 3) throw std::invalid_argument("adaptive version must be 1, 2 or 3");
     auto window = scaled_limit(capacity, options.window_factor);
-    const bool aligned = options.aligned_comparison && capacity > 20;
+    const bool aligned = options.version >= 2 && capacity > 20;
     // Small capacities retain V1's fast reaction. Larger caches need enough
     // time to measure the effects of eviction choices from the same starting state.
     if (aligned) {
         const auto maximum = std::numeric_limits<std::size_t>::max();
         window = window > maximum / 2 ? maximum : window * 2;
     }
-    History history(scaled_limit(capacity, options.history_factor));
+    // Validate the supplied factor before halving it; invalid values must not
+    // become valid simply because the caller selected a larger cache.
+    scaled_limit(capacity, options.history_factor);
+    const auto history_factor = options.version == 3 && capacity > 20
+        ? std::max(std::size_t{1}, options.history_factor / 2) : options.history_factor;
+    History history(scaled_limit(capacity, history_factor), options.version == 3);
     const auto check_interval = std::max(std::size_t{1}, window / 4);
     const auto margin = std::max(std::size_t{1}, window / (aligned ? 20 : 50));
     Cache actual(capacity, seed);
