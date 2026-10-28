@@ -1,0 +1,10 @@
+{
+  "platform": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+  "binary_sha256": "274fc3945e7baaa1ef8654c59c86e54aac6d4c5de14eb67aa9e6f4bf9159ea88",
+  "dataset": "mm32",
+  "frames": 100,
+  "seed": 0,
+  "repeats": 10,
+  "warmup_runs_per_algorithm": 1,
+  "scope": "End-to-end subprocess wall time, including startup, trace parsing and simulation. Not actual OS paging latency."
+}

@@ -3,5 +3,7 @@
 data/*.txt -text
 results/*.csv -text
 *.png binary
+*.pptx binary
 data/* linguist-vendored=true
 results/* linguist-generated=true
+presentation/*.pptx linguist-generated=true

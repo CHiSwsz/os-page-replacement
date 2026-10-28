@@ -1,8 +1,10 @@
-# 页面替换算法基线实验
+# 页面替换算法与自适应策略实验
 
-C++17 demand-paging 模拟器，实现 **Random、FIFO、MIN/OPT、LFU、LRU**，附四个课程 trace、实验原始记录、图表与中文分析。
+C++17 demand-paging 模拟器，实现 **Random、FIFO、MIN/OPT、LFU、LRU、Second chance**，以及根据容量和过去访问历史调整策略的 **Adaptive**。附四个课程 trace、完整实验记录、课件示例形式的分组柱状图、参数实验和中文分析。
 
-完整结果见 [实验报告](REPORT.md)，原始数据见 [results/](results/)。本次实现范围是课件第 4 页的五种基线。
+完整结果见 [实验报告](REPORT.md)，原始数据见 [results/](results/)，详细缺页次数见 [宽表](results/fault_counts_table.csv)。新版 Adaptive V2 在本次 20 个配置上的平均缺页次数比 Random 少 25.62%，比 LRU 少 28.99%，相对 V1 进一步降低 0.71%。仍有落后于基线或旧版的配置，详见报告。
+
+[汇报 PPT（21 页，含讲稿备注和详细数据附录）](presentation/page-replacement.pptx) 使用用户指定的 v22 模板制作，图表与表格可编辑。
 
 ## 编译与测试
 
@@ -28,11 +30,14 @@ ctest --test-dir build-sanitize --output-on-failure
 ./build/pager --trace data/sort1.txt --algorithm all --frames 5,10,20,50,100
 ./build/pager --trace data/mm32.txt --algorithm random --frames 50 --seed 7
 ./build/pager --trace data/sort1.txt --algorithm lru --frames 5 --events build/events.csv
+./build/pager --trace data/mm32.txt --algorithm adaptive --frames 5,10,20,50,100 --seed 0
+./build/pager --trace data/mm16.txt --algorithm adaptive --frames 100 --window-factor 4 --history-factor 16
+./build/pager --trace data/mm16.txt --algorithm adaptive --frames 100 --adaptive-version 1
 ```
 
-`--algorithm` 支持 `random`、`fifo`、`opt`、`min`、`lfu`、`lru`、`all`，其中 `min` 是 `opt` 的别名。统计结果以 CSV 写到标准输出，可重定向到文件。错误写到标准错误，退出码为 2。
+`--algorithm` 支持 `random`、`fifo`、`opt`、`min`、`lfu`、`lru`、`second_chance`、`adaptive`、`all`，其中 `min` 是 `opt` 的别名，`clock` / `second-chance` 是 `second_chance` 的别名。`all` 运行七种算法。统计结果以 CSV 写到标准输出，可重定向到文件。错误写到标准错误，退出码为 2。
 
-输出字段是 `algorithm,frames,seed,references,hits,faults,evictions,fault_rate`。确定性算法的 `seed` 为空。`fault_rate` 是 0～1 的比例。空 trace 的缺页率定义为 0。
+核心输出字段是 `algorithm,frames,seed,references,hits,faults,evictions,fault_rate`，后接 `policy_random,policy_lru,policy_predict,policy_switches,history_peak`，用于解释 Adaptive 的行为；其他算法这些附加列为 0。确定性算法的 `seed` 为空，Random / Adaptive 保留种子。`fault_rate` 是 0～1 的比例。空 trace 的缺页率定义为 0。
 
 `--events` 只允许单算法、单页框数量，记录 `reference,page,hit,frame,evicted`。访问序号从 1 开始，物理页框编号从 0 开始，页面号使用十六进制；没有淘汰时 `evicted` 为空。
 
@@ -45,8 +50,12 @@ ctest --test-dir build-sanitize --output-on-failure
 - **OPT**：淘汰下一次访问最远的页面，永不再使用优先；并列时选择编号最小的页框。提前反向扫描 trace 计算每次访问的下一次出现位置。它是利用未来信息的离线最优基准。
 - **LFU**：统计当前这次驻留期间的访问次数，装入时计数为 1，命中加 1，淘汰后丢弃计数。并列按 LRU 决定；未使用衰减或窗口。
 - **LRU**：淘汰最后访问最早的页面，每次命中更新最近访问位置。
+- **Second chance**：Clock 环形指针，访问位初始和命中时设为 1；替换时跳过并清除为 1 的位，淘汰遇到的第一个 0 位页面。
+- **Adaptive**：F≤20 时从 Random 起步，其他容量从 LRU 起步。用最近 max(32,4F) 次访问的影子模拟缺页数，在 Random、LRU、历史间隔预测之间选择。保留最多 max(32,16F) 个页号的访问历史（含被淘汰页），预测器用平滑后的历史间隔和波动估计复用，过期预测逐渐失去保护。所有决策只看已发生访问。影子状态仅为元数据，切换时不复制其驻留集合，真实物理内存始终为 F 个页框。
 
-除 OPT 外，决策只依赖已发生的访问。即使 CLI 为方便运行多个算法而把 trace 读入内存，四种在线算法也不会查看未来位置。
+V2 在 F>20 时将上述窗口加倍，把切换门槛提高到窗口的 1/20，并每 W 次访问将真实缓存的页号、最近访问位置和 RNG 状态复制到三个影子缓存作为共同起点。F≤20 保持 V1 的逐步决策。复制方向始终是实际到影子，不改变真实页框。周期内仍可能有状态偏差，不能保证所有切换都受益。
+
+除 OPT 外，决策只依赖已发生的访问。即使 CLI 为方便运行多个算法而把 trace 读入内存，六种在线算法也不会查看未来位置。Adaptive 的 `--window-factor` / `--history-factor` 范围为 1～64，默认 4 / 16，仅作用于 Adaptive。`--adaptive-version` 默认为 2，传 1 可复现旧版。完整公式、切换条件和局限见报告。
 
 实现采用页号到页框的哈希表，命中检查为期望 O(1)。Random 的淘汰为期望 O(1)；FIFO、LRU、LFU、OPT 为便于讲解，淘汰时扫描 F 个页框，耗时 O(F)。它们在本任务 F≤100 的规模下可快速完成实验。OPT 的预处理期望 O(N)，额外空间 O(N+U)，N 是访问次数，U 是不同页面数。所有算法的页框状态占 O(F)，读取完整 trace 另占 O(N)，开启事件日志再增加 O(N)。这份实验比较缺页次数，不把程序运行时间当作算法优劣指标。
 
@@ -69,16 +78,21 @@ ctest --test-dir build-sanitize --output-on-failure
 python3 scripts/import_traces.py /path/to/TraceSet1.zip
 ```
 
-课程更新版课件要求四个数据集都做；原压缩包附带的旧说明不改变本次要求。课件另要求 Second chance 和自己的算法，这两项不属于当前五基线实现。
+课程更新版课件要求四个数据集都做；原压缩包附带的旧说明不改变本次要求。本实现已包含课件要求的 FIFO、MIN、LRU、Second chance 和自设组合策略，另保留 Random 与 LFU 对照。自设组合不宣称为新的学术算法。
 
 ## 复现实验
 
 ```bash
 python3 scripts/experiments.py
+python3 scripts/compare_versions.py
 python3 scripts/analyze_traces.py
+python3 scripts/supplementary_experiments.py
+python3 scripts/benchmark_overhead.py
 ```
 
-默认页框数 5、10、20、50、100。四种确定性算法各运行一次，Random 使用固定种子 0～29 各运行一次，共 680 次正式运行、100 组汇总；另进行 20 次“页框数等于不同页数”的正确性检查。每次运行重新清空内存、计数器与随机数发生器。
+默认页框数 5、10、20、50、100。五种确定性算法各运行一次，Random / Adaptive 使用固定种子 0～29 各运行一次，共 1,300 次正式运行、140 组汇总；另进行 28 次“页框数等于不同页数”的正确性检查。每次运行重新清空内存、计数器与随机数发生器。补充脚本产生 3,000 条参数实验记录（其中 600 条复用默认配置）和 1,950 次构造轨迹测试。
+
+`compare_versions.py` 保存 1,200 条 V1/V2 配对记录，其中 V2 复用正式实验。探索过程的 2,400 条记录见 `results/optimization_search_raw.csv`，可通过 `python3 scripts/explore_candidates.py` 从保留的 V1 提交重新生成。探索使用课程轨迹和种子 0～4，不能视作泛化评测。
 
 图表需要 matplotlib，以下安装只影响仓库内的虚拟环境：
 
@@ -86,6 +100,9 @@ python3 scripts/analyze_traces.py
 python3 -m venv .venv
 .venv/bin/python -m pip install -r requirements-lock.txt
 .venv/bin/python scripts/plot_results.py
+.venv/bin/python scripts/plot_comparisons.py
+python3 scripts/make_report.py
+python3 scripts/verify_artifacts.py
 ```
 
 如果系统有 pip、但缺少创建 venv 所需的 ensurepip，可使用：
@@ -95,7 +112,7 @@ python3 -m venv --without-pip .venv
 python3 -m pip --python .venv/bin/python install -r requirements-lock.txt
 ```
 
-`requirements.txt` 只固定 matplotlib 版本；`requirements-lock.txt` 记录本次绘图使用的完整包版本。图表横轴使用真实页框数量的对数刻度，Random 阴影是均值 ±1 个样本标准差。
+`requirements.txt` 只固定 matplotlib 版本；`requirements-lock.txt` 记录本次绘图使用的完整包版本。趋势图使用对数横轴；课件示例形式的分组柱状图使用五档容量分类横轴。Random / Adaptive 的阴影或误差线为均值 ±1 个样本标准差。
 
 | 输出 | 内容 |
 |---|---|
@@ -107,13 +124,21 @@ python3 -m pip --python .venv/bin/python install -r requirements-lock.txt
 | `results/trace_diagnostics.json` | 重用距离分析，以及独立核对的 LRU 缺页次数 |
 | `results/fault_counts.png` / `.svg` | 缺页次数图 |
 | `results/fault_rates.png` / `.svg` | 缺页率图 |
+| `results/comparison_by_frames.png` / `.svg` | 七方法 × 五容量分组柱状图 |
+| `results/normalized_vs_lru.png` / `.svg` | 按课件示例，将 LRU 归一化为 1 的对比图 |
+| `results/fault_counts_table.csv` | 全部方法、各 frame 数的平均缺页次数宽表 |
+| `results/fault_counts_seed0.csv` | seed=0 时全部方法的整数缺页次数 |
+| `results/parameters_*.csv` | 窗口与历史长度的参数实验 |
+| `results/synthetic_*.csv` | 构造轨迹压力测试，独立于课程给定数据 |
+| `results/timing_*.csv` | mm32 / 100 页框的端到端程序耗时 |
 
 ## 正确性保障
 
-- 穷举三种页号、长度 0～6 的全部 1,093 条 trace，分别测试 1～4 个页框及五种算法。
+- 穷举三种页号、长度 0～6 的全部 1,093 条 trace，分别测试 1～4 个页框及七种算法。
 - OPT 与“枚举所有合法淘汰选择”的独立最优解比较。FIFO、LRU、LFU 的每次淘汰与独立的简单参考实现比较。
 - 逐步检查页框容量、命中状态、缺页时才装入、满内存时才淘汰、统计和事件一致。
 - 固定序列覆盖 Belady 异常、LFU 并列与重载计数重置、页号 0 / 最大 64 位值、Random 种子复现。
+- Second chance 对照独立队列实现。Adaptive 检查改变未来后缀不改变过去决策、页号重命名不变、种子复现、策略切换后仍遵守物理容量、历史上限及参数边界。
 - CLI 检查非法输入、路径空格、空 trace、结果格式，以及禁止事件输出覆盖输入文件或其符号链接。
 - 在真实数据上验证 OPT 下界、LRU / OPT 的容量单调性、冷启动缺页下界、足够内存时的精确计数；用独立的重用距离分析再次核对 LRU。
 - GitHub Actions 自动编译、运行普通与 sanitizer 测试，并逐字节复现已记录的原始实验 CSV。

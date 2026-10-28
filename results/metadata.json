@@ -1,5 +1,5 @@
 {
-  "generated_at_utc": "2026-10-28T08:11:30.881392+00:00",
+  "generated_at_utc": "2026-10-28T13:17:00.867409+00:00",
   "platform": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.39",
   "python": "3.12.3 (main, Aug 31 2026, 10:18:26) [GCC 13.3.0]",
   "compiler": "c++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
@@ -42,14 +42,24 @@
     28,
     29
   ],
-  "runs": 680,
-  "summary_groups": 100,
-  "extra_enough_memory_checks": 20,
+  "runs": 1300,
+  "summary_groups": 140,
+  "extra_enough_memory_checks": 28,
+  "stochastic_algorithms": [
+    "adaptive",
+    "random"
+  ],
+  "adaptive_options": {
+    "window_factor": 4,
+    "history_factor": 16,
+    "version": 2
+  },
+  "adaptive_policy": "past-only Random/LRU/predict selector; V2 frames>20 doubles W, margin W/20, resets shadow metadata from actual every W; physical frames retained",
   "random_stddev": "sample standard deviation, ddof=1; variation across seeds on a fixed trace",
   "lfu_policy": "current-residency count; reset to 1 on insertion; ties by least-recent use",
   "initial_memory": "empty for every simulation",
   "prefetch": false,
-  "binary_sha256": "f264bbbf62364ed095ad6d0bf4548aa1316686e1e5a1294dc4b35144fbd974ea",
+  "binary_sha256": "274fc3945e7baaa1ef8654c59c86e54aac6d4c5de14eb67aa9e6f4bf9159ea88",
   "datasets": [
     {
       "name": "qsort",
@@ -81,15 +91,23 @@
     }
   ],
   "source_sha256": {
-    "CMakeLists.txt": "6878b306d8524913710b866069736e53e82699abd959fa5a2709b463510cc451",
-    "include/paging.hpp": "9b1fac66cf70c3e7557f87009a1235b8ed44c0cd68390ceec42a858a76e3cf63",
+    "CMakeLists.txt": "a7747e15961868463a745b410ea3ffdbace1667d7172fca98a01bcb13aeaac55",
+    "include/paging.hpp": "bf3dfb3667e65dc2bf0d4b3b6e08bab7f43aca19d9bd24a9e8459c03a3ceb1bf",
     "scripts/analyze_traces.py": "b28c33a43f000967702655de3c522593bd9221c04c52645c7494655116b71928",
-    "scripts/experiments.py": "17008b17a4e5f3bf6a22b4f9e659ee9c419bbfe627c8c12fe08090a4428775a2",
+    "scripts/benchmark_overhead.py": "1d8c6dd9fa79b9923f40097214c257f8844e0094bffaf563bc526dd22049ba76",
+    "scripts/compare_versions.py": "d325b82524a427d97b111cd8bea9d518d7b5d2ccb20560a6beec596d177c4f04",
+    "scripts/experiments.py": "01e0efd2d96b2e6ae583250f96bfd78bdbd0079b5269a37dcf53a678aecba8bd",
+    "scripts/explore_candidates.py": "87971e6e430256e448c2668a1684d2d655b267919ed7b0fc04259ca695a5d509",
     "scripts/import_traces.py": "e9c5006da86749974740d238fbe276c8dc1a67cb854857a7c7d480fb9a339441",
-    "scripts/plot_results.py": "ca699a7e76332ae9bf4a3d0de59cba9ebd569cc0b5a02c53726afcb1e2c1cbcf",
-    "src/main.cpp": "f7f11b3879b4aa4316616baee0640f8542493f22fbfe276c6ff5d96d4ac1c767",
-    "src/paging.cpp": "58492135da031ab80dc4df39f044231428d4e2f875d2d417a73718743047b6df",
-    "tests/test_cli.py": "6db94965c3d759b86ca7818ca6bb8502cbe2268585600ce75ce438cb8739d516",
-    "tests/test_paging.cpp": "aa7a6bfb3b85cdecbcc5f50a7cca2b88914e85f9431f8b829e4b49a4bbcfe05b"
+    "scripts/make_report.py": "186dd627857063ec58ac872410ab032745165d6ded98312589b0e0b589e84dd3",
+    "scripts/plot_comparisons.py": "02019241e6ebb2d7ab748e956af2556c45c644980d1f0994dc8e616c6d2660bd",
+    "scripts/plot_results.py": "09d35d73892858fa5ad078534e9b90ffd30343ce0b13cea9bdbbe60a28d61e1b",
+    "scripts/supplementary_experiments.py": "622ccdbba3fc2cd4fbda8071c8406ac8d1d1310d2cdca4318370c6c0798c0cbb",
+    "scripts/verify_artifacts.py": "c7eecae7d9497b7c2eff5c798211488cecde0958c178bbbe9e18e748f4e1960e",
+    "src/adaptive.cpp": "9bef02ef92882d6f6bcc1e3ffd2386df8ed628f39ce012865fd1d94bc41393e0",
+    "src/main.cpp": "fb1c700cb311e1b6d6c953a3e9ba61c5468b018f7db2795bf81d81d9ae623915",
+    "src/paging.cpp": "cfd6074cbfc6f441cf6230f1c5854980f92feeee702171d142bb5bf4f7b702e5",
+    "tests/test_cli.py": "f309f1f8db321590cd2a5f83e23bb6de3b3206a705d393aedb19f3b95911cd37",
+    "tests/test_paging.cpp": "b8031f6b0346a88c3a61bc7ad2b02a9b9985b38b29a422d465d4db04907e85e5"
   }
 }

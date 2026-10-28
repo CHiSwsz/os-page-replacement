@@ -1,0 +1,29 @@
+{
+  "file": "page-replacement.pptx",
+  "sha256": "2f064a55618d4a6c94ec90d5d2d041448e24c1ad9b5f1d9923b34ee9134bbdc0",
+  "bytes": 144631,
+  "template_filename": "第三讲_反向传播_修订版_v22.pptx",
+  "template_sha256": "8d097f1cbe81ae942b6abf1816772c04fad5bf345642986f5aeaaeeadc9572fa",
+  "slide_count": 21,
+  "native_charts": 11,
+  "native_tables": 11,
+  "package_integrity": "pass",
+  "geometry_findings": 0,
+  "font_policy_passed": true,
+  "artifact_import_passed": true,
+  "PowerPoint_all_slides_rendered": true,
+  "text_overflows": 0,
+  "finalized_vs_reviewed_pixels_identical": true,
+  "PowerPoint_edit_save_reopen_chart_and_table_passed": true,
+  "independent_csv_values_checked": 390,
+  "speaker_notes_with_sources": 21,
+  "data_sha256": {
+    "timing_summary.csv": "739df772fb52060ec9ab2d5d9f8c2b50a48af53bbac423a3da51727627e38733",
+    "version_comparison.csv": "9f82158f33dfc7f32c7e90c5fec681cb84d66308b58733b0e0bb9648a5523699",
+    "overall.csv": "25d29152b5a8cdbfacaaddf93afb752834db66d0703a4dcd979272360390b348",
+    "parameters_summary.csv": "aebe58e857fdb1f25e5d680843cd7f11cdf6c2af033a581f3bac7921ceb6a84f",
+    "synthetic_summary.csv": "3d5220377304bd27ded962157dc903ca0e4c8e8355f2debba224160abb39aa78",
+    "summary.csv": "e3349dca9fb23967c9ac0afabe1de990dfa4b3e8e36fafef0042474727f34c7c"
+  },
+  "scope": "PowerPoint validated. Google Slides not tested."
+}

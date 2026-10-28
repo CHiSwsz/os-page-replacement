@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 option(ENABLE_SANITIZERS "Enable AddressSanitizer and UndefinedBehaviorSanitizer" OFF)
 
-add_library(paging src/paging.cpp)
+add_library(paging src/paging.cpp src/adaptive.cpp)
 target_include_directories(paging PUBLIC include)
 target_compile_options(paging PRIVATE -Wall -Wextra -Wpedantic -Wconversion)
 add_executable(pager src/main.cpp)

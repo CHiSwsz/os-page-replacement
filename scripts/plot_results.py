@@ -12,7 +12,8 @@ import matplotlib.pyplot as plt
 from matplotlib.ticker import ScalarFormatter
 
 ROOT = Path(__file__).resolve().parents[1]
-COLORS = {"random": "#8b5cf6", "fifo": "#e58b18", "opt": "#11856b", "lfu": "#c84b62", "lru": "#2875c7"}
+COLORS = {"random": "#8b5cf6", "fifo": "#e58b18", "opt": "#11856b", "lfu": "#c84b62", "lru": "#2875c7",
+          "second_chance": "#87929e", "adaptive": "#101827"}
 
 
 def main():
@@ -29,8 +30,8 @@ def main():
                          "svg.hashsalt": "page-replacement-baselines"})
     for rate in [False, True]:
         fig, axes = plt.subplots(2, 2, figsize=(12, 8))
-        fig.subplots_adjust(top=0.86, bottom=0.17, left=0.09, right=0.97, hspace=0.48, wspace=0.24)
-        fig.suptitle("Demand paging: five replacement baselines", x=0.09, y=0.97, ha="left", fontsize=20, fontweight="bold")
+        fig.subplots_adjust(top=0.86, bottom=0.20, left=0.09, right=0.97, hspace=0.48, wspace=0.24)
+        fig.suptitle("Demand paging: Adaptive and six baselines", x=0.09, y=0.97, ha="left", fontsize=20, fontweight="bold")
         fig.text(0.09, 0.915, "Four course traces | Empty initial memory | No prefetching | Lower is better", color="#555555", fontsize=11)
         for ax, dataset in zip(axes.flat, datasets):
             subset = [row for row in rows if row["dataset"] == dataset]
@@ -42,11 +43,13 @@ def main():
                 scale = 100 / references if rate else 1
                 y = [float(row["faults_mean"]) * scale for row in selected]
                 label = "OPT (offline)" if algorithm == "opt" else ("Random (30-seed mean)" if algorithm == "random" else algorithm.upper())
-                if algorithm == "random":
-                    label = f"Random ({selected[0]['runs']}-seed mean)"
+                if algorithm in {"random", "adaptive"}:
+                    label = f"{algorithm.title()} ({selected[0]['runs']}-seed mean)"
+                if algorithm == "second_chance":
+                    label = "Second chance"
                 ax.plot(x, y, marker="o", markersize=4, linewidth=2, color=color,
                         linestyle="--" if algorithm == "opt" else "-", label=label)
-                if algorithm == "random":
+                if algorithm in {"random", "adaptive"}:
                     sd = [float(row["faults_stddev"]) * scale for row in selected]
                     ax.fill_between(x, [max(0, a-b) for a,b in zip(y,sd)], [a+b for a,b in zip(y,sd)], color=color, alpha=0.12)
             ax.set_xscale("log")
@@ -59,8 +62,8 @@ def main():
             ax.grid(axis="y", color="#e5e7eb", linewidth=0.8)
             ax.set_axisbelow(True)
         handles, labels = axes[0, 0].get_legend_handles_labels()
-        fig.legend(handles, labels, loc="lower center", bbox_to_anchor=(0.53, 0.055), ncol=5, frameon=False, fontsize=10)
-        fig.text(0.09, 0.035, "Shading: Random mean ± 1 sample standard deviation. LFU counts reset on eviction; ties use LRU.", fontsize=10, color="#555555")
+        fig.legend(handles, labels, loc="lower center", bbox_to_anchor=(0.53, 0.055), ncol=4, frameon=False, fontsize=10)
+        fig.text(0.09, 0.025, "Shading: mean ± 1 sample standard deviation for Random and Adaptive. Lower is better.", fontsize=10, color="#555555")
         stem = "fault_rates" if rate else "fault_counts"
         for extension in ["png", "svg"]:
             path = args.results / f"{stem}.{extension}"
