@@ -1,0 +1,22 @@
+{
+  "platform": "Linux-5.4.250-9-velinux1u2-amd64-x86_64-with-glibc2.35",
+  "timing_scope": "end-to-end Release simulator, five capacities, includes parsing; not OS fault latency",
+  "median_milliseconds": {
+    "3": 156.50414500851184,
+    "4": 1014.6873369812965
+  },
+  "unique_scan_scaling": [
+    {
+      "references": 10000,
+      "elapsed_seconds": 0.1608977320138365,
+      "peak_rss_kib": 9480,
+      "average_faults": 10000
+    },
+    {
+      "references": 1000000,
+      "elapsed_seconds": 15.498934345960151,
+      "peak_rss_kib": 9536,
+      "average_faults": 1000000
+    }
+  ]
+}

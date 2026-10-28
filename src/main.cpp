@@ -10,11 +10,14 @@
 #include <sstream>
 #include <stdexcept>
 
+int contest_main(int argc, char** argv);
+
 namespace {
 const char* usage =
     "Usage: pager --trace FILE --algorithm random|fifo|opt|min|lfu|lru|second_chance|adaptive|all\n"
     "             --frames N[,N...] [--seed UINT64] [--events FILE]\n"
-    "             [--window-factor 1..64] [--history-factor 1..64] [--adaptive-version 1|2|3]\n"
+    "             [--window-factor 1..64] [--history-factor 1..64] [--adaptive-version 1|2|3|4]\n"
+    "Classroom: pager FILE, or pager --contest --help (five capacities and average).\n"
     "Trace: one hexadecimal virtual page number per nonblank line.\n"
     "CSV results go to stdout; errors go to stderr. Initial memory is empty.\n"
     "--events requires one algorithm and one frame count; frame IDs start at 0.\n"
@@ -49,6 +52,11 @@ std::vector<std::size_t> frame_counts(const std::string& text) {
 }  // namespace
 
 int main(int argc, char** argv) {
+    // A bare path is the classroom entry point. The original experiment CLI
+    // and its machine-readable CSV schema remain available unchanged.
+    if (argc > 1 && (std::string(argv[1]) == "--contest" || argv[1][0] != '-' || std::string(argv[1]) == "-")) {
+        return contest_main(argc, argv);
+    }
     try {
         std::string trace_path, algorithm_text, frames_text, events_path;
         std::uint64_t seed = 0;
@@ -71,7 +79,7 @@ int main(int argc, char** argv) {
             if (arg == "--seed") seed = number(value, "seed");
             if (arg == "--adaptive-version") {
                 const auto version = number(value, "adaptive version");
-                if (version < 1 || version > 3) throw std::invalid_argument("adaptive version must be 1, 2 or 3");
+                if (version < 1 || version > 4) throw std::invalid_argument("adaptive version must be 1, 2, 3 or 4");
                 adaptive_options.version = static_cast<unsigned>(version);
             }
             if (arg == "--window-factor" || arg == "--history-factor") {

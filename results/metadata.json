@@ -1,8 +1,8 @@
 {
-  "generated_at_utc": "2026-10-28T17:28:04.621484+00:00",
-  "platform": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.39",
-  "python": "3.12.3 (main, Aug 31 2026, 10:18:26) [GCC 13.3.0]",
-  "compiler": "c++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+  "generated_at_utc": "2026-10-28T18:51:55.082605+00:00",
+  "platform": "Linux-5.4.250-9-velinux1u2-amd64-x86_64-with-glibc2.35",
+  "python": "3.12.2 | packaged by conda-forge | (main, Feb 16 2024, 20:50:58) [GCC 12.3.0]",
+  "compiler": "c++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0",
   "frames": [
     5,
     10,
@@ -59,7 +59,7 @@
   "lfu_policy": "current-residency count; reset to 1 on insertion; ties by least-recent use",
   "initial_memory": "empty for every simulation",
   "prefetch": false,
-  "binary_sha256": "668b0ee3748fd8387cf3512500889427da40bf270a5d3aabbb957d9649404724",
+  "binary_sha256": "fd7c28e3384e741182dc01c36e7495bdb47e3d76882d2cea845750b5f81d63a9",
   "datasets": [
     {
       "name": "qsort",
@@ -91,26 +91,33 @@
     }
   ],
   "source_sha256": {
-    "CMakeLists.txt": "a7747e15961868463a745b410ea3ffdbace1667d7172fca98a01bcb13aeaac55",
-    "include/paging.hpp": "b15fe8e0cc0f839e100f98353997b86a68c1388c817a551f88e0498da1c9773f",
+    "CMakeLists.txt": "4148d624df618cb9f39248ffd4b344e6394206d794f8b08c27540c873ba6e61c",
+    "include/paging.hpp": "2fe74e0dae2b8c384a4c8bd75c2d061ea3b2d479ddda6b5d04b01e3ca185cea6",
     "scripts/analyze_traces.py": "b28c33a43f000967702655de3c522593bd9221c04c52645c7494655116b71928",
     "scripts/benchmark_overhead.py": "1d8c6dd9fa79b9923f40097214c257f8844e0094bffaf563bc526dd22049ba76",
+    "scripts/build_v4_report.py": "cae496fbd3a84a7e5fcb1338a95048ff7bb9c2ea4c9578fb2d7e6754593b7e8c",
     "scripts/compare_versions.py": "5486315120cdbd027f13343bfd198a2a210b0cabbf0c5b827a029f2ae30411b8",
+    "scripts/contest_benchmark.py": "85c3db850f42ae2a0d24d21de1c7d4e392b7a8f8d57a48d41a917700e2281ae8",
+    "scripts/contest_experiments.py": "828ea5466eb8d9e5a0bd41316cd629ffd301091f7dcdcc2d38aa2c9d82c9cdc2",
     "scripts/experiments.py": "c38366641cf48bd249af6beb70603f8e5d6d178aac3fef4ca4f4788c46b07e8e",
     "scripts/explore_candidates.py": "87971e6e430256e448c2668a1684d2d655b267919ed7b0fc04259ca695a5d509",
     "scripts/explore_v3.py": "70b94012fc71368c23e48903ae2d63922e2bcf819c87490e9cd544eba18af725",
+    "scripts/explore_v4.py": "70beb801b8c2704799ae22eb79466f7be5f1264e413f483e692a93bf94a642e0",
     "scripts/fresh_stress.py": "2cc716a6e8a4d930a5682489d9b8729a06205679029ccc1f4b619488f88cc92b",
     "scripts/import_traces.py": "e9c5006da86749974740d238fbe276c8dc1a67cb854857a7c7d480fb9a339441",
-    "scripts/make_report.py": "4d8aa13de81c174ba86b43a2d2fd074c95579e67447310a805342019e50a73be",
+    "scripts/make_report.py": "831b399e7791dad75bd45328834753b407783c95bb1261d9ed9a52f6069a3b31",
     "scripts/plot_comparisons.py": "174d07c7c2218df8a9704a0b164546b702ce7ce34e1d69338d592efd0e7c788e",
     "scripts/plot_results.py": "09d35d73892858fa5ad078534e9b90ffd30343ce0b13cea9bdbbe60a28d61e1b",
     "scripts/supplementary_experiments.py": "e553a6b89c94f822200c55cb72c620e562bb69efa47122f6aadabb9980bba362",
     "scripts/verify_artifacts.py": "63fd8d7a94f9fc57023c91a68663ea4b19bc974355ea53d36d44b68f6af64fc5",
-    "src/adaptive.cpp": "7bf0de5f2deae0f1a99cb7dbd07e175fde0004f03ad0d7816da3f7afeccd7b10",
-    "src/main.cpp": "3cbf04a21e7ee987e7c58e5bd452184a725bb49cf59a25705ecb8899a3c23339",
-    "src/paging.cpp": "cfd6074cbfc6f441cf6230f1c5854980f92feeee702171d142bb5bf4f7b702e5",
-    "tests/test_cli.py": "c900b0da74fe508d9492456111240a6e6b18f11c0555c3844354b31ed8b10abe",
-    "tests/test_paging.cpp": "b102f159668b214833ba908f67a562aa77e177ae44e7869d8e7af560545a0047"
+    "scripts/verify_v4.py": "19474e87ce8ee8ed496df2f70bbd2980885f075c302d5661dbb361a00ce3a339",
+    "src/adaptive.cpp": "3fd4042fc64643863aaaefac6bf47229e7178207aa19eb8b43112d96c1dedba0",
+    "src/contest.cpp": "5ca5bc3a0eff031f62667b9dd866cd61ca7404e4a7fe67acda802acfcc0a96bd",
+    "src/context.cpp": "c830e0eb05a65834872531a519be4c8402ea969c9e319eb574a458b8a4291770",
+    "src/main.cpp": "f108fcc68511a465eac4657eeb203e7570cfe6ff548a746fc0504c04225c13c7",
+    "src/paging.cpp": "93bd5202a6f060da1597dbb646da4bc4538c9a2f3206a3e124466c5dd30a1ec0",
+    "tests/test_cli.py": "3a9d20d4772b19ee404dc728eda112f40d70e79d2a64077fe04836d3826dac6b",
+    "tests/test_paging.cpp": "d1df82540aa3584504b667f52232bf5de7b10f52b30f91be19dd801bcdadd07c"
   },
-  "source_snapshot_note": "Reporting and audit tooling finalized after simulation; C++ implementation and experiment rules unchanged. Source hashes cover the final submitted tooling."
+  "build_configuration_note": "Added MSVC-specific warning flags after the legacy replay; GCC flags and the measured executable are byte-identical. Release and ASan/UBSan CTest rerun successfully."
 }
