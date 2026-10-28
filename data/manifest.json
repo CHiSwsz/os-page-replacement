@@ -1,0 +1,34 @@
+{
+  "source": "Course-provided TraceSet1.zip",
+  "source_archive_sha256": "b3c311aa1200d2e9d77d0e54a61b95853d23ba6a7f8ad502549281024bf05724",
+  "datasets": [
+    {
+      "name": "qsort",
+      "file": "sort1.txt",
+      "references": 524,
+      "unique_pages": 192,
+      "sha256": "2c93d419c3fc44c1f694fe0063e1ee808096204fd1753ffd7caf5b4889e7d67b"
+    },
+    {
+      "name": "lu",
+      "file": "lu.txt",
+      "references": 41832,
+      "unique_pages": 531,
+      "sha256": "cb107ef1ec39aa860c00b03ff5461321e4f2cfdf629269e0fa8e03a4d533bdd7"
+    },
+    {
+      "name": "mm16",
+      "file": "mm16.txt",
+      "references": 9075,
+      "unique_pages": 515,
+      "sha256": "745a77dd05e800a10da1443befa02b8dd4a103305cf5a04b6e5626763c7aa57a"
+    },
+    {
+      "name": "mm32",
+      "file": "mm32.txt",
+      "references": 67235,
+      "unique_pages": 1667,
+      "sha256": "bdbc4ac696998ce5dc5dfaa6206bc50773990469a13d68d38dd6a6262db2bd1a"
+    }
+  ]
+}

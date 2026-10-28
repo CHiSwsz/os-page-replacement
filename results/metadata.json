@@ -1,0 +1,95 @@
+{
+  "generated_at_utc": "2026-10-28T08:11:30.881392+00:00",
+  "platform": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+  "python": "3.12.3 (main, Aug 31 2026, 10:18:26) [GCC 13.3.0]",
+  "compiler": "c++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+  "frames": [
+    5,
+    10,
+    20,
+    50,
+    100
+  ],
+  "random_seeds": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29
+  ],
+  "runs": 680,
+  "summary_groups": 100,
+  "extra_enough_memory_checks": 20,
+  "random_stddev": "sample standard deviation, ddof=1; variation across seeds on a fixed trace",
+  "lfu_policy": "current-residency count; reset to 1 on insertion; ties by least-recent use",
+  "initial_memory": "empty for every simulation",
+  "prefetch": false,
+  "binary_sha256": "f264bbbf62364ed095ad6d0bf4548aa1316686e1e5a1294dc4b35144fbd974ea",
+  "datasets": [
+    {
+      "name": "qsort",
+      "file": "sort1.txt",
+      "references": 524,
+      "unique_pages": 192,
+      "sha256": "2c93d419c3fc44c1f694fe0063e1ee808096204fd1753ffd7caf5b4889e7d67b"
+    },
+    {
+      "name": "lu",
+      "file": "lu.txt",
+      "references": 41832,
+      "unique_pages": 531,
+      "sha256": "cb107ef1ec39aa860c00b03ff5461321e4f2cfdf629269e0fa8e03a4d533bdd7"
+    },
+    {
+      "name": "mm16",
+      "file": "mm16.txt",
+      "references": 9075,
+      "unique_pages": 515,
+      "sha256": "745a77dd05e800a10da1443befa02b8dd4a103305cf5a04b6e5626763c7aa57a"
+    },
+    {
+      "name": "mm32",
+      "file": "mm32.txt",
+      "references": 67235,
+      "unique_pages": 1667,
+      "sha256": "bdbc4ac696998ce5dc5dfaa6206bc50773990469a13d68d38dd6a6262db2bd1a"
+    }
+  ],
+  "source_sha256": {
+    "CMakeLists.txt": "6878b306d8524913710b866069736e53e82699abd959fa5a2709b463510cc451",
+    "include/paging.hpp": "9b1fac66cf70c3e7557f87009a1235b8ed44c0cd68390ceec42a858a76e3cf63",
+    "scripts/analyze_traces.py": "b28c33a43f000967702655de3c522593bd9221c04c52645c7494655116b71928",
+    "scripts/experiments.py": "17008b17a4e5f3bf6a22b4f9e659ee9c419bbfe627c8c12fe08090a4428775a2",
+    "scripts/import_traces.py": "e9c5006da86749974740d238fbe276c8dc1a67cb854857a7c7d480fb9a339441",
+    "scripts/plot_results.py": "ca699a7e76332ae9bf4a3d0de59cba9ebd569cc0b5a02c53726afcb1e2c1cbcf",
+    "src/main.cpp": "f7f11b3879b4aa4316616baee0640f8542493f22fbfe276c6ff5d96d4ac1c767",
+    "src/paging.cpp": "58492135da031ab80dc4df39f044231428d4e2f875d2d417a73718743047b6df",
+    "tests/test_cli.py": "6db94965c3d759b86ca7818ca6bb8502cbe2268585600ce75ce438cb8739d516",
+    "tests/test_paging.cpp": "aa7a6bfb3b85cdecbcc5f50a7cca2b88914e85f9431f8b829e4b49a4bbcfe05b"
+  }
+}
