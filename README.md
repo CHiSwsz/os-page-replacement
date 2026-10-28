@@ -2,7 +2,9 @@
 
 C++17 demand-paging 模拟器，实现 **Random、FIFO、MIN/OPT、LFU、LRU、Second chance**，以及根据容量和过去访问历史调整策略的 **Adaptive**。附四个课程 trace、完整实验记录、课件示例形式的分组柱状图、参数实验和中文分析。
 
-完整结果见 [实验报告](REPORT.md)，原始数据见 [results/](results/)，详细缺页次数见 [宽表](results/fault_counts_table.csv)。Adaptive 在本次 20 个配置上的平均缺页次数比 Random 少 25.09%，比 LRU 少 28.48%，也有落后于基线的配置，详见报告。
+完整结果见 [实验报告](REPORT.md)，原始数据见 [results/](results/)，详细缺页次数见 [宽表](results/fault_counts_table.csv)。新版 Adaptive V2 在本次 20 个配置上的平均缺页次数比 Random 少 25.62%，比 LRU 少 28.99%，相对 V1 进一步降低 0.71%。仍有落后于基线或旧版的配置，详见报告。
+
+[汇报 PPT（21 页，含讲稿备注和详细数据附录）](presentation/page-replacement.pptx) 使用用户指定的 v22 模板制作，图表与表格可编辑。
 
 ## 编译与测试
 
@@ -30,6 +32,7 @@ ctest --test-dir build-sanitize --output-on-failure
 ./build/pager --trace data/sort1.txt --algorithm lru --frames 5 --events build/events.csv
 ./build/pager --trace data/mm32.txt --algorithm adaptive --frames 5,10,20,50,100 --seed 0
 ./build/pager --trace data/mm16.txt --algorithm adaptive --frames 100 --window-factor 4 --history-factor 16
+./build/pager --trace data/mm16.txt --algorithm adaptive --frames 100 --adaptive-version 1
 ```
 
 `--algorithm` 支持 `random`、`fifo`、`opt`、`min`、`lfu`、`lru`、`second_chance`、`adaptive`、`all`，其中 `min` 是 `opt` 的别名，`clock` / `second-chance` 是 `second_chance` 的别名。`all` 运行七种算法。统计结果以 CSV 写到标准输出，可重定向到文件。错误写到标准错误，退出码为 2。
@@ -50,7 +53,9 @@ ctest --test-dir build-sanitize --output-on-failure
 - **Second chance**：Clock 环形指针，访问位初始和命中时设为 1；替换时跳过并清除为 1 的位，淘汰遇到的第一个 0 位页面。
 - **Adaptive**：F≤20 时从 Random 起步，其他容量从 LRU 起步。用最近 max(32,4F) 次访问的影子模拟缺页数，在 Random、LRU、历史间隔预测之间选择。保留最多 max(32,16F) 个页号的访问历史（含被淘汰页），预测器用平滑后的历史间隔和波动估计复用，过期预测逐渐失去保护。所有决策只看已发生访问。影子状态仅为元数据，切换时不复制其驻留集合，真实物理内存始终为 F 个页框。
 
-除 OPT 外，决策只依赖已发生的访问。即使 CLI 为方便运行多个算法而把 trace 读入内存，六种在线算法也不会查看未来位置。Adaptive 的 `--window-factor` / `--history-factor` 范围为 1～64，默认 4 / 16，仅作用于 Adaptive。完整公式、切换条件和局限见报告。
+V2 在 F>20 时将上述窗口加倍，把切换门槛提高到窗口的 1/20，并每 W 次访问将真实缓存的页号、最近访问位置和 RNG 状态复制到三个影子缓存作为共同起点。F≤20 保持 V1 的逐步决策。复制方向始终是实际到影子，不改变真实页框。周期内仍可能有状态偏差，不能保证所有切换都受益。
+
+除 OPT 外，决策只依赖已发生的访问。即使 CLI 为方便运行多个算法而把 trace 读入内存，六种在线算法也不会查看未来位置。Adaptive 的 `--window-factor` / `--history-factor` 范围为 1～64，默认 4 / 16，仅作用于 Adaptive。`--adaptive-version` 默认为 2，传 1 可复现旧版。完整公式、切换条件和局限见报告。
 
 实现采用页号到页框的哈希表，命中检查为期望 O(1)。Random 的淘汰为期望 O(1)；FIFO、LRU、LFU、OPT 为便于讲解，淘汰时扫描 F 个页框，耗时 O(F)。它们在本任务 F≤100 的规模下可快速完成实验。OPT 的预处理期望 O(N)，额外空间 O(N+U)，N 是访问次数，U 是不同页面数。所有算法的页框状态占 O(F)，读取完整 trace 另占 O(N)，开启事件日志再增加 O(N)。这份实验比较缺页次数，不把程序运行时间当作算法优劣指标。
 
@@ -79,12 +84,15 @@ python3 scripts/import_traces.py /path/to/TraceSet1.zip
 
 ```bash
 python3 scripts/experiments.py
+python3 scripts/compare_versions.py
 python3 scripts/analyze_traces.py
 python3 scripts/supplementary_experiments.py
 python3 scripts/benchmark_overhead.py
 ```
 
 默认页框数 5、10、20、50、100。五种确定性算法各运行一次，Random / Adaptive 使用固定种子 0～29 各运行一次，共 1,300 次正式运行、140 组汇总；另进行 28 次“页框数等于不同页数”的正确性检查。每次运行重新清空内存、计数器与随机数发生器。补充脚本产生 3,000 条参数实验记录（其中 600 条复用默认配置）和 1,950 次构造轨迹测试。
+
+`compare_versions.py` 保存 1,200 条 V1/V2 配对记录，其中 V2 复用正式实验。探索过程的 2,400 条记录见 `results/optimization_search_raw.csv`，可通过 `python3 scripts/explore_candidates.py` 从保留的 V1 提交重新生成。探索使用课程轨迹和种子 0～4，不能视作泛化评测。
 
 图表需要 matplotlib，以下安装只影响仓库内的虚拟环境：
 

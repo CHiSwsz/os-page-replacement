@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Parameter sensitivity and synthetic stress tests; no parameter selection on test cases."""
+"""Parameter sensitivity and synthetic regression/stress tests with frozen defaults."""
 import argparse
 from collections import defaultdict
 import csv
@@ -101,7 +101,7 @@ def main():
         "parameter_variants": variants, "random_seeds": list(range(args.random_runs)),
         "parameter_rows": len(parameter_rows), "synthetic_rows": len(synthetic_rows),
         "synthetic_generator_seed": 20261028, "synthetic_cases": manifest,
-        "interpretation": "Synthetic stress tests are not the instructor's hidden test set. Default parameters were fixed before these runs."
+        "interpretation": "The six synthetic cases were already inspected in V1 and are now regression tests, not unseen validation. V2 was selected on course traces before rerunning these cases; no retuning afterward."
     }, indent=2) + "\n")
 
 

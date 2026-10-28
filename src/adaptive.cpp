@@ -130,10 +130,17 @@ public:
 Result simulate_adaptive(const std::vector<Page>& trace, std::size_t capacity,
                          std::uint64_t seed, bool record_events, AdaptiveOptions options) {
     if (capacity == 0) throw std::invalid_argument("frame count must be positive");
-    const auto window = scaled_limit(capacity, options.window_factor);
+    auto window = scaled_limit(capacity, options.window_factor);
+    const bool aligned = options.aligned_comparison && capacity > 20;
+    // Small capacities retain V1's fast reaction. Larger caches need enough
+    // time to measure the effects of eviction choices from the same starting state.
+    if (aligned) {
+        const auto maximum = std::numeric_limits<std::size_t>::max();
+        window = window > maximum / 2 ? maximum : window * 2;
+    }
     History history(scaled_limit(capacity, options.history_factor));
     const auto check_interval = std::max(std::size_t{1}, window / 4);
-    const auto margin = std::max(std::size_t{1}, window / 50);
+    const auto margin = std::max(std::size_t{1}, window / (aligned ? 20 : 50));
     Cache actual(capacity, seed);
     // These are page-ID-only counterfactual simulations. On a policy switch,
     // actual physical frames are retained, never populated from shadow state.
@@ -155,6 +162,12 @@ Result simulate_adaptive(const std::vector<Page>& trace, std::size_t capacity,
                 selected = best;
                 ++result.policy_switches;
             }
+        }
+        if (aligned && i % window == 0) {
+            // Copy only the actual page-ID/recency/RNG metadata into each
+            // counterfactual cache, after the past-window decision. Never
+            // copy a hypothetical resident into physical memory.
+            for (auto& shadow : shadows) shadow = actual;
         }
         const auto event = actual.access(trace[i], i, static_cast<Policy>(selected), history);
         ++result.policy_uses[selected];

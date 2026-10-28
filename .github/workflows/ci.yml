@@ -25,3 +25,4 @@ jobs:
           python3 scripts/analyze_traces.py --results build/reproduced
           diff results/trace_diagnostics.json build/reproduced/trace_diagnostics.json
           python3 scripts/verify_artifacts.py
+          python3 presentation/verify_data.py

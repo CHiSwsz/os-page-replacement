@@ -114,6 +114,21 @@ def main():
     fig.text(0.07,0.02,"Adaptive uses only observed history; it is not guaranteed to beat LRU on every workload or capacity.",fontsize=10,color="#555555")
     save(fig,out,"normalized_vs_lru")
 
+    versions=read(out/'version_comparison.csv')
+    fig,axes=plt.subplots(1,4,figsize=(14,4.6))
+    fig.subplots_adjust(left=.065,right=.985,top=.78,bottom=.24,wspace=.38)
+    fig.suptitle('V1 vs V2 at 50 / 100 frames',x=.065,y=.96,ha='left',fontsize=21,fontweight='bold')
+    for ax,ds in zip(axes,DATASETS):
+        rows=[r for r in versions if r['dataset']==ds and int(r['frames'])>20]
+        x=np.arange(2)
+        for i,(key,color) in enumerate([('v1','#a7adb4'),('v2','#6b4a82')]):
+            ax.bar(x+(i-.5)*.36,[float(r[key]) for r in rows],.36,label=key.upper(),color=color)
+        ax.set_xticks(x,['50','100']);ax.set_xlabel('Physical frames');ax.set_title(ds,loc='left');style(ax)
+    axes[0].set_ylabel('Page faults')
+    fig.legend(*axes[0].get_legend_handles_labels(),loc='lower center',bbox_to_anchor=(.5,.07),ncol=2,frameon=False)
+    fig.text(.065,.02,'30 paired seeds. Small capacities unchanged; mm32 / 50 regresses by 0.127%.',fontsize=10,color='#555555')
+    save(fig,out,'version_comparison')
+
     parameters=read(out/"parameters_summary.csv")
     fig,axes=plt.subplots(1,2,figsize=(13,5.5))
     fig.subplots_adjust(left=0.08,right=0.98,top=0.8,bottom=0.24,wspace=0.25)

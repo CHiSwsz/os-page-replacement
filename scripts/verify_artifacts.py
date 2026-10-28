@@ -58,6 +58,18 @@ def main():
             check(len(candidates)==1 and int(row[a])==int(candidates[0]["faults"]),"seed-0 table value")
     aggregate_check(read("parameters_raw.csv"),read("parameters_summary.csv"),["window_factor","history_factor","dataset","frames"])
     aggregate_check(read("synthetic_raw.csv"),read("synthetic_summary.csv"),["dataset","frames","algorithm"])
+    versions=read("versions_raw.csv")
+    vg=aggregate_check(versions,read("versions_summary.csv"),["version","dataset","frames"])
+    for (version,dataset,frames),group in vg.items():
+        check({int(r['seed']) for r in group}==set(range(30)),"version seed range")
+        if version=='2':
+            expected={r['seed']:r['faults'] for r in groups[(dataset,frames,'adaptive')]}
+            check(all(r['faults']==expected[r['seed']] for r in group),'V2 agrees with formal results')
+    for r in read('version_comparison.csv'):
+        for v in [1,2]:
+            expected=statistics.mean(int(x['faults']) for x in vg[(str(v),r['dataset'],r['frames'])])
+            check(math.isclose(float(r[f'v{v}']),expected), 'version comparison mean')
+        check(math.isclose(float(r['difference']),float(r['v2'])-float(r['v1']),abs_tol=1e-9),'version difference')
     supplemental=json.loads((ROOT/"results/supplementary_metadata.json").read_text())
     for case in supplemental["synthetic_cases"]:
         check(hashlib.sha256((ROOT/"results/synthetic_traces"/(case["name"]+".txt")).read_bytes()).hexdigest()==case["sha256"],"synthetic trace hash")

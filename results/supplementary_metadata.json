@@ -94,5 +94,5 @@
       "sha256": "51790e0e01621c4dc8640794de5a4f99ea66c4c69d5d16e54ccfb3d753b21c48"
     }
   ],
-  "interpretation": "Synthetic stress tests are not the instructor's hidden test set. Default parameters were fixed before these runs."
+  "interpretation": "The six synthetic cases were already inspected in V1 and are now regression tests, not unseen validation. V2 was selected on course traces before rerunning these cases; no retuning afterward."
 }

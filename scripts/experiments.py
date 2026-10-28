@@ -29,10 +29,11 @@ def write_csv(path, rows):
         writer.writerows(rows)
 
 
-def run(binary, trace, algorithm, capacities, seed, window_factor=4, history_factor=16):
+def run(binary, trace, algorithm, capacities, seed, window_factor=4, history_factor=16, adaptive_version=2):
     command = [str(binary), "--trace", str(trace), "--algorithm", algorithm,
                "--frames", ",".join(map(str, capacities)), "--seed", str(seed),
-               "--window-factor", str(window_factor), "--history-factor", str(history_factor)]
+               "--window-factor", str(window_factor), "--history-factor", str(history_factor),
+               "--adaptive-version", str(adaptive_version)]
     completed = subprocess.run(command, capture_output=True, text=True, check=True)
     rows = list(csv.DictReader(io.StringIO(completed.stdout)))
     expected = len(capacities) * (len(ALGORITHMS) if algorithm == "all" else 1)
@@ -134,8 +135,8 @@ def main():
                 "frames": args.frames, "random_seeds": list(range(args.random_runs)),
                 "runs": len(raw), "summary_groups": len(summary), "extra_enough_memory_checks": len(datasets) * len(ALGORITHMS),
                 "stochastic_algorithms": sorted(STOCHASTIC),
-                "adaptive_options": {"window_factor": 4, "history_factor": 16},
-                "adaptive_policy": "past-window shadow losses select Random/LRU/reuse predictor; real frames retained on switches",
+                "adaptive_options": {"window_factor": 4, "history_factor": 16, "version": 2},
+                "adaptive_policy": "past-only Random/LRU/predict selector; V2 frames>20 doubles W, margin W/20, resets shadow metadata from actual every W; physical frames retained",
                 "random_stddev": "sample standard deviation, ddof=1; variation across seeds on a fixed trace",
                 "lfu_policy": "current-residency count; reset to 1 on insertion; ties by least-recent use",
                 "initial_memory": "empty for every simulation", "prefetch": False,

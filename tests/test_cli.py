@@ -85,6 +85,10 @@ class CliTests(unittest.TestCase):
 
     def test_adaptive_options(self):
         args = ["--trace", self.trace, "--algorithm", "adaptive", "--frames", 2]
+        for invalid in [0, 3, -1]:
+            self.assertEqual(self.run_cli(*args, "--adaptive-version", invalid).returncode, 2)
+        self.assertEqual(self.run_cli(*args, "--adaptive-version", 1).stdout,
+                         self.run_cli(*args, "--adaptive-version", 2).stdout)
         for option in ["--window-factor", "--history-factor"]:
             for invalid in [0, -1, 65]:
                 self.assertEqual(self.run_cli(*args, option, invalid).returncode, 2)

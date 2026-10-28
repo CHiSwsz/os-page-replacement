@@ -14,7 +14,7 @@ namespace {
 const char* usage =
     "Usage: pager --trace FILE --algorithm random|fifo|opt|min|lfu|lru|second_chance|adaptive|all\n"
     "             --frames N[,N...] [--seed UINT64] [--events FILE]\n"
-    "             [--window-factor 1..64] [--history-factor 1..64]\n"
+    "             [--window-factor 1..64] [--history-factor 1..64] [--adaptive-version 1|2]\n"
     "Trace: one hexadecimal virtual page number per nonblank line.\n"
     "CSV results go to stdout; errors go to stderr. Initial memory is empty.\n"
     "--events requires one algorithm and one frame count; frame IDs start at 0.\n"
@@ -58,7 +58,7 @@ int main(int argc, char** argv) {
             const std::string arg = argv[i];
             if (arg == "--help" || arg == "-h") { std::cout << usage; return 0; }
             if (arg != "--trace" && arg != "--algorithm" && arg != "--frames" &&
-                arg != "--seed" && arg != "--events" && arg != "--window-factor" && arg != "--history-factor") {
+                arg != "--seed" && arg != "--events" && arg != "--window-factor" && arg != "--history-factor" && arg != "--adaptive-version") {
                 throw std::invalid_argument("unknown option: " + arg);
             }
             if (!seen.insert(arg).second) throw std::invalid_argument("duplicate option: " + arg);
@@ -69,6 +69,11 @@ int main(int argc, char** argv) {
             if (arg == "--frames") frames_text = value;
             if (arg == "--events") events_path = value;
             if (arg == "--seed") seed = number(value, "seed");
+            if (arg == "--adaptive-version") {
+                const auto version = number(value, "adaptive version");
+                if (version != 1 && version != 2) throw std::invalid_argument("adaptive version must be 1 or 2");
+                adaptive_options.aligned_comparison = version == 2;
+            }
             if (arg == "--window-factor" || arg == "--history-factor") {
                 const auto factor = number(value, "adaptive factor");
                 if (factor == 0 || factor > 64) throw std::invalid_argument("adaptive factors must be in [1, 64]");
