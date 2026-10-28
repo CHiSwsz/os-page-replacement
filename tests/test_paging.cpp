@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <array>
+#include <deque>
 #include <iostream>
 #include <map>
 #include <set>
@@ -12,8 +13,9 @@
 using paging::Algorithm;
 using paging::Page;
 using Trace = std::vector<Page>;
-const std::array<Algorithm, 5> algorithms = {
-    Algorithm::Random, Algorithm::Fifo, Algorithm::Opt, Algorithm::Lfu, Algorithm::Lru};
+const std::array<Algorithm, 7> algorithms = {
+    Algorithm::Random, Algorithm::Fifo, Algorithm::Opt, Algorithm::Lfu, Algorithm::Lru,
+    Algorithm::SecondChance, Algorithm::Adaptive};
 std::size_t checks = 0;
 
 void check(bool condition, const char* message) {
@@ -110,6 +112,78 @@ void validate_events(const Trace& trace, std::size_t capacity, const paging::Res
     check(result.hits == hits && result.evictions == evictions, "event totals agree");
 }
 
+std::vector<std::optional<Page>> second_chance_reference(const Trace& trace, std::size_t capacity) {
+    std::deque<std::pair<Page, bool>> queue;
+    std::vector<std::optional<Page>> victims;
+    for (Page page : trace) {
+        auto found = std::find_if(queue.begin(), queue.end(), [page](const auto& entry) { return entry.first == page; });
+        std::optional<Page> victim;
+        if (found != queue.end()) {
+            found->second = true;
+        } else {
+            if (queue.size() == capacity) {
+                while (queue.front().second) {
+                    const Page moved = queue.front().first;
+                    queue.pop_front();
+                    queue.emplace_back(moved, false);
+                }
+                victim = queue.front().first;
+                queue.pop_front();
+            }
+            queue.emplace_back(page, true);
+        }
+        victims.push_back(victim);
+    }
+    return victims;
+}
+
+void online_and_adaptive_checks() {
+    Trace trace;
+    for (std::size_t i = 0; i < 1800; ++i) {
+        trace.push_back(i < 600 ? i % 29 : (i < 1200 ? 100 + i % 7 : 200 + i % 61));
+    }
+    for (std::size_t capacity : {5U, 10U, 20U, 50U, 100U}) {
+        for (const auto algorithm : algorithms) {
+            if (algorithm == Algorithm::Opt) continue;
+            const auto full = paging::simulate(trace, capacity, algorithm, 19, true);
+            validate_events(trace, capacity, full);
+            for (std::size_t length : {37U, 183U, 713U, 1400U}) {
+                const Trace prefix(trace.begin(), trace.begin() + static_cast<std::ptrdiff_t>(length));
+                const auto shortened = paging::simulate(prefix, capacity, algorithm, 19, true);
+                for (std::size_t i = 0; i < length; ++i) {
+                    check(shortened.events[i].hit == full.events[i].hit &&
+                          shortened.events[i].frame == full.events[i].frame &&
+                          shortened.events[i].evicted == full.events[i].evicted, "online decision depends on future suffix");
+                }
+            }
+            if (algorithm == Algorithm::Adaptive) {
+                check(full.policy_uses[0] + full.policy_uses[1] + full.policy_uses[2] == trace.size(), "adaptive policy accounting");
+                check(full.history_peak <= std::max(std::size_t{32}, 16 * capacity), "bounded history metadata");
+                const auto repeated = paging::simulate(trace, capacity, algorithm, 19, true);
+                for (std::size_t i = 0; i < trace.size(); ++i) {
+                    check(repeated.events[i].evicted == full.events[i].evicted, "adaptive seed reproducibility");
+                }
+                Trace renamed = trace;
+                for (auto& page : renamed) page = 1000003 - page;
+                const auto relabeled = paging::simulate(renamed, capacity, algorithm, 19, true);
+                for (std::size_t i = 0; i < trace.size(); ++i) {
+                    check(relabeled.events[i].hit == full.events[i].hit && relabeled.events[i].frame == full.events[i].frame,
+                          "adaptive must not depend on specific numeric page IDs");
+                }
+            }
+        }
+    }
+    Trace cycle;
+    for (std::size_t i = 0; i < 1200; ++i) cycle.push_back(i % 29);
+    const auto learned = paging::simulate(cycle, 10, Algorithm::Adaptive, 7, true);
+    check(learned.policy_switches > 0 && learned.policy_uses[2] > 0, "adaptive learns to use reuse prediction on a stable cycle");
+    for (std::size_t factor : {1U, 2U, 8U, 64U}) {
+        const auto varied = paging::simulate(trace, 10, Algorithm::Adaptive, 3, true, {factor, factor});
+        validate_events(trace, 10, varied);
+        check(varied.history_peak <= std::max(std::size_t{32}, 10 * factor), "nondefault history cap");
+    }
+}
+
 void exhaustive() {
     std::size_t trace_count = 0;
     // All 1,093 traces of length 0..6 over three distinct page IDs.
@@ -130,6 +204,12 @@ void exhaustive() {
                         const auto expected = reference_victims(trace, capacity, algorithm);
                         for (std::size_t i = 0; i < trace.size(); ++i) {
                             check(result.events[i].evicted == expected[i], "victim differs from independent reference");
+                        }
+                    }
+                    if (algorithm == Algorithm::SecondChance) {
+                        const auto expected = second_chance_reference(trace, capacity);
+                        for (std::size_t i = 0; i < trace.size(); ++i) {
+                            check(result.events[i].evicted == expected[i], "Second chance differs from queue reference");
                         }
                     }
                 }
@@ -153,6 +233,8 @@ int main() {
         check(paging::simulate({1,2,1,2,3}, 2, Algorithm::Lfu, 0, true).events.back().evicted == 1, "LFU tie uses LRU");
         const auto reset = paging::simulate({1,1,2,2,2,3,1,4}, 2, Algorithm::Lfu, 0, true);
         check(reset.events.back().evicted == 1, "LFU resets count after eviction and reload");
+        check(paging::simulate({1,2,3,4,2,5}, 3, Algorithm::SecondChance, 0, true).events.back().evicted == 3,
+              "Second chance honors a renewed reference bit");
         for (const auto algorithm : algorithms) {
             check(paging::simulate({}, 5, algorithm).fault_rate() == 0, "empty trace");
             check(paging::simulate({42,42,42}, 1, algorithm).faults == 1, "repeated page");
@@ -179,8 +261,9 @@ int main() {
             random_victims.insert(*paging::simulate({1,2,3,4}, 3, Algorithm::Random, seed, true).events.back().evicted);
         }
         check(random_victims.size() == 3, "random can select every resident page");
+        online_and_adaptive_checks();
         exhaustive();
-        std::cout << "PASS: " << checks << " checks, including 1,093 exhaustive traces across 4 capacities and 5 algorithms\n";
+        std::cout << "PASS: " << checks << " checks, including 1,093 exhaustive traces across 4 capacities and 7 algorithms\n";
         return 0;
     } catch (const std::exception& error) {
         std::cerr << "FAIL: " << error.what() << '\n';

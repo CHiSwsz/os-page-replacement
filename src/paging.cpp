@@ -16,6 +16,8 @@ const char* name(Algorithm algorithm) {
         case Algorithm::Opt: return "opt";
         case Algorithm::Lfu: return "lfu";
         case Algorithm::Lru: return "lru";
+        case Algorithm::SecondChance: return "second_chance";
+        case Algorithm::Adaptive: return "adaptive";
     }
     throw std::invalid_argument("unknown algorithm");
 }
@@ -26,6 +28,8 @@ Algorithm parse_algorithm(const std::string& value) {
     if (value == "opt" || value == "min") return Algorithm::Opt;
     if (value == "lfu") return Algorithm::Lfu;
     if (value == "lru") return Algorithm::Lru;
+    if (value == "second_chance" || value == "second-chance" || value == "clock") return Algorithm::SecondChance;
+    if (value == "adaptive") return Algorithm::Adaptive;
     throw std::invalid_argument("unknown algorithm: " + value);
 }
 
@@ -64,6 +68,7 @@ struct Frame {
     std::size_t last_used;
     std::size_t frequency;
     std::size_t next_use;
+    bool referenced = true;
 };
 
 // Rejection sampling avoids modulo bias and implementation-specific behavior
@@ -79,9 +84,10 @@ std::size_t random_slot(std::mt19937_64& rng, std::size_t count) {
 }  // namespace
 
 Result simulate(const std::vector<Page>& trace, std::size_t capacity,
-                Algorithm algorithm, std::uint64_t seed, bool record_events) {
+                Algorithm algorithm, std::uint64_t seed, bool record_events, AdaptiveOptions options) {
     if (capacity == 0) throw std::invalid_argument("frame count must be positive");
     (void)name(algorithm);  // Reject invalid enum values even for empty traces.
+    if (algorithm == Algorithm::Adaptive) return simulate_adaptive(trace, capacity, seed, record_events, options);
     Result result;
     result.references = trace.size();
     if (record_events) result.events.reserve(trace.size());
@@ -90,6 +96,7 @@ Result simulate(const std::vector<Page>& trace, std::size_t capacity,
     std::unordered_map<Page, std::size_t> resident;
     resident.reserve(std::min(capacity, trace.size()));
     std::mt19937_64 rng(seed);
+    std::size_t clock_hand = 0;
 
     // trace.size() means "never used again" and sorts after every real index.
     std::vector<std::size_t> next_use;
@@ -115,6 +122,7 @@ Result simulate(const std::vector<Page>& trace, std::size_t capacity,
             slot = found->second;
             ++frames[slot].frequency;
             frames[slot].last_used = i;
+            frames[slot].referenced = true;
         } else {
             ++result.faults;
             if (frames.size() < capacity) {
@@ -124,6 +132,13 @@ Result simulate(const std::vector<Page>& trace, std::size_t capacity,
                 slot = 0;
                 if (algorithm == Algorithm::Random) {
                     slot = random_slot(rng, frames.size());
+                } else if (algorithm == Algorithm::SecondChance) {
+                    while (frames[clock_hand].referenced) {
+                        frames[clock_hand].referenced = false;
+                        clock_hand = (clock_hand + 1) % frames.size();
+                    }
+                    slot = clock_hand;
+                    clock_hand = (clock_hand + 1) % frames.size();
                 } else {
                     for (std::size_t j = 1; j < frames.size(); ++j) {
                         bool prefer = false;
@@ -141,7 +156,9 @@ Result simulate(const std::vector<Page>& trace, std::size_t capacity,
                             case Algorithm::Opt:
                                 prefer = frames[j].next_use > frames[slot].next_use;
                                 break;
-                            case Algorithm::Random: break;
+                            case Algorithm::Random:
+                            case Algorithm::SecondChance:
+                            case Algorithm::Adaptive: break;
                         }
                         if (prefer) slot = j;
                     }

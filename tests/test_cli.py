@@ -25,8 +25,8 @@ class CliTests(unittest.TestCase):
         result = self.run_cli("--trace", self.trace, "--algorithm", "all", "--frames", "1,2")
         self.assertEqual(result.returncode, 0, result.stderr)
         rows = list(csv.DictReader(io.StringIO(result.stdout)))
-        self.assertEqual(len(rows), 10)
-        self.assertEqual({row["algorithm"] for row in rows}, {"random", "fifo", "opt", "lfu", "lru"})
+        self.assertEqual(len(rows), 14)
+        self.assertEqual({row["algorithm"] for row in rows}, {"random", "fifo", "opt", "lfu", "lru", "second_chance", "adaptive"})
         for row in rows:
             self.assertEqual(int(row["references"]), 4)
             self.assertEqual(int(row["hits"]) + int(row["faults"]), 4)
@@ -82,6 +82,16 @@ class CliTests(unittest.TestCase):
         second = self.run_cli(*args)
         self.assertEqual(first.returncode, 0, first.stderr)
         self.assertEqual(first.stdout, second.stdout)
+
+    def test_adaptive_options(self):
+        args = ["--trace", self.trace, "--algorithm", "adaptive", "--frames", 2]
+        for option in ["--window-factor", "--history-factor"]:
+            for invalid in [0, -1, 65]:
+                self.assertEqual(self.run_cli(*args, option, invalid).returncode, 2)
+        result = self.run_cli(*args, "--window-factor", 2, "--history-factor", 8)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        row = next(csv.DictReader(io.StringIO(result.stdout)))
+        self.assertEqual(sum(int(row[key]) for key in ["policy_random", "policy_lru", "policy_predict"]), 4)
 
 
 if __name__ == "__main__":
