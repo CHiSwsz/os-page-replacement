@@ -101,7 +101,7 @@ def main():
         "parameter_variants": variants, "random_seeds": list(range(args.random_runs)),
         "parameter_rows": len(parameter_rows), "synthetic_rows": len(synthetic_rows),
         "synthetic_generator_seed": 20261028, "synthetic_cases": manifest,
-        "interpretation": "The six synthetic cases were already inspected in V1 and are now regression tests, not unseen validation. V2 was selected on course traces before rerunning these cases; no retuning afterward."
+        "interpretation": "The six synthetic cases were already inspected in V1 and are now regression tests, not unseen validation. V3 was selected on course traces before rerunning these cases; no retuning afterward."
     }, indent=2) + "\n")
 
 

@@ -29,7 +29,7 @@ def write_csv(path, rows):
         writer.writerows(rows)
 
 
-def run(binary, trace, algorithm, capacities, seed, window_factor=4, history_factor=16, adaptive_version=2):
+def run(binary, trace, algorithm, capacities, seed, window_factor=4, history_factor=16, adaptive_version=3):
     command = [str(binary), "--trace", str(trace), "--algorithm", algorithm,
                "--frames", ",".join(map(str, capacities)), "--seed", str(seed),
                "--window-factor", str(window_factor), "--history-factor", str(history_factor),
@@ -85,7 +85,7 @@ def main():
             if row["algorithm"] == "adaptive":
                 if sum(row[key] for key in ["policy_random", "policy_lru", "policy_predict"]) != row["references"]:
                     raise RuntimeError("Adaptive policy accounting mismatch")
-                if row["history_peak"] > max(32, 16 * row["frames"]):
+                if row["history_peak"] > max(32, (8 if row["frames"] > 20 else 16) * row["frames"]):
                     raise RuntimeError("Adaptive history exceeded its bound")
         for algorithm in ["opt", "lru"]:
             values = [row["faults"] for row in runs if row["algorithm"] == algorithm]
@@ -135,8 +135,8 @@ def main():
                 "frames": args.frames, "random_seeds": list(range(args.random_runs)),
                 "runs": len(raw), "summary_groups": len(summary), "extra_enough_memory_checks": len(datasets) * len(ALGORITHMS),
                 "stochastic_algorithms": sorted(STOCHASTIC),
-                "adaptive_options": {"window_factor": 4, "history_factor": 16, "version": 2},
-                "adaptive_policy": "past-only Random/LRU/predict selector; V2 frames>20 doubles W, margin W/20, resets shadow metadata from actual every W; physical frames retained",
+                "adaptive_options": {"window_factor": 4, "history_factor": 16, "version": 3},
+                "adaptive_policy": "past-only Random/LRU/predict selector; V3 uses EWMA alpha=0.5 without deviation penalty, halves history factor for frames>20; V2 frames>20 doubles W, margin W/20, resets shadow metadata from actual every W; physical frames retained",
                 "random_stddev": "sample standard deviation, ddof=1; variation across seeds on a fixed trace",
                 "lfu_policy": "current-residency count; reset to 1 on insertion; ties by least-recent use",
                 "initial_memory": "empty for every simulation", "prefetch": False,

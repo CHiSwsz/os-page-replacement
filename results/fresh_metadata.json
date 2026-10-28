@@ -1,0 +1,63 @@
+{
+  "generator_seed": 2718281,
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29
+  ],
+  "cases": [
+    {
+      "name": "rotating_hotsets",
+      "references": 9600,
+      "unique_pages": 555,
+      "sha256": "6e30263a4265b8bf93ad3aecc14c256907c8c655f6450a795726520c0cee90d4"
+    },
+    {
+      "name": "jittered_cycle_97",
+      "references": 7760,
+      "unique_pages": 97,
+      "sha256": "e5f9fd21b1cd620c617ad75c5194ab5eb56393847aeeb212c8f71c8b7fb19eed"
+    },
+    {
+      "name": "returning_sets_560",
+      "references": 8960,
+      "unique_pages": 560,
+      "sha256": "c77b7ec9d89e0797021cb27639988c98f9f9284c12c941eb5eabedec2d1c282f"
+    },
+    {
+      "name": "hot8_scan70",
+      "references": 10200,
+      "unique_pages": 7008,
+      "sha256": "2f7a3960fc75fb99cb80130024ec3f8986a42d15b15d5cc2f94d5c4379a70c53"
+    }
+  ],
+  "rows": 1900,
+  "interpretation": "Additional constructed stress tests, specified before their results were inspected. V3 rules frozen before this run; no retuning on these results. Not instructor hidden data."
+}

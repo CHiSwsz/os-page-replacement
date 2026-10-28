@@ -157,17 +157,18 @@ void online_and_adaptive_checks() {
                 }
             }
             if (algorithm == Algorithm::Adaptive) {
-                const auto legacy = paging::simulate(trace, capacity, algorithm, 19, true, {4, 16, false});
+                const auto legacy = paging::simulate(trace, capacity, algorithm, 19, true, {4, 16, 1});
+                const auto v2 = paging::simulate(trace, capacity, algorithm, 19, true, {4, 16, 2});
                 validate_events(trace, capacity, legacy);
                 if (capacity <= 20) {
                     for (std::size_t i = 0; i < trace.size(); ++i) {
-                        check(legacy.events[i].evicted == full.events[i].evicted &&
-                              legacy.events[i].hit == full.events[i].hit,
+                        check(legacy.events[i].evicted == v2.events[i].evicted &&
+                              legacy.events[i].hit == v2.events[i].hit,
                               "V2 must preserve V1 for small capacities");
                     }
                 }
                 check(full.policy_uses[0] + full.policy_uses[1] + full.policy_uses[2] == trace.size(), "adaptive policy accounting");
-                check(full.history_peak <= std::max(std::size_t{32}, 16 * capacity), "bounded history metadata");
+                check(full.history_peak <= std::max(std::size_t{32}, (capacity > 20 ? 8 : 16) * capacity), "bounded V3 history metadata");
                 const auto repeated = paging::simulate(trace, capacity, algorithm, 19, true);
                 for (std::size_t i = 0; i < trace.size(); ++i) {
                     check(repeated.events[i].evicted == full.events[i].evicted, "adaptive seed reproducibility");

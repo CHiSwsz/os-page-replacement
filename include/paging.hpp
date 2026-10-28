@@ -37,8 +37,8 @@ struct Result {
 
 struct AdaptiveOptions {
     std::size_t window_factor = 4;   // Comparison window: max(32, factor * frames).
-    std::size_t history_factor = 16; // Page-ID history: max(32, factor * frames).
-    bool aligned_comparison = true; // V2: longer windows and shadow rebasing when frames > 20.
+    std::size_t history_factor = 16; // V3 halves this factor when frames > 20, rounding down to >= 1.
+    unsigned version = 3;           // V1 original, V2 aligned comparison, V3 faster reuse learning.
 };
 
 // Starts with empty memory. No prefetching. Only OPT reads future references.

@@ -23,12 +23,12 @@ with ZipFile(ROOT/'presentation/page-replacement.pptx') as z:
     def table(n):
         return [[''.join(t.text or '' for t in cell.findall('.//a:t',NS)) for cell in row.findall('a:tc',NS)] for row in xml(n).findall('.//a:tbl/a:tr',NS)]
     for n,ds in enumerate(datasets,16):
-        expected=[['页框','Random','FIFO','OPT','LFU','LRU','Clock','V2']]
+        expected=[['页框','Random','FIFO','OPT','LFU','LRU','Clock','V3']]
         expected.extend([[str(f),*[f'{value(ds,f,a):,.2f}' if a in ['random','adaptive'] else f'{value(ds,f,a):,.0f}' for a in algs]] for f in frames])
         assert table(n)==expected,(n,table(n),expected);checks+=35
-    changes=[r for r in read('version_comparison') if float(r['difference'])!=0]
-    expected=[['轨迹 / 页框','V1','V2','变化']]+[[f'{r["dataset"]} / {r["frames"]}',f'{float(r["v1"]):,.2f}',f'{float(r["v2"]):,.2f}',f'{float(r["difference"]):+,.2f}'] for r in changes]
-    assert table(13)==expected;checks+=18
+    changes=[next(r for r in read('version_comparison') if r['dataset']==d and int(r['frames'])==f) for d,f in [('lu',50),('lu',100),('mm32',20),('mm32',50),('mm16',100),('lu',5),('qsort',20)]]
+    expected=[['轨迹 / 页框','V2','V3','变化']]+[[f'{r["dataset"]} / {r["frames"]}',f'{float(r["v2"]):,.2f}',f'{float(r["v3"]):,.2f}',f'{float(r["difference"]):+,.2f}'] for r in changes]
+    assert table(13)==expected;checks+=21
     params=read('parameters_summary');expected=[['窗口因子','历史因子',*datasets,'总体平均']]
     for w,h in [(2,16),(4,16),(8,16),(4,8),(4,32)]:
         group=[r for r in params if int(r['window_factor'])==w and int(r['history_factor'])==h]
@@ -59,9 +59,9 @@ with ZipFile(ROOT/'presentation/page-replacement.pptx') as z:
               10:[[[value(d,f,a) for f in frames] for a in algs] for d in datasets[:2]],
               11:[[[value(d,f,a) for f in frames] for a in algs] for d in datasets[2:]],
               12:[[[1]*5,[value(d,f,'adaptive')/value(d,f,'lru') for f in frames]] for d in datasets]}
-    syn=read('synthetic_summary');cases=['scan_unique','cycle_73','cycle_149','hot_with_scans','phase_changes','iid_uniform_256']
+    syn=read('fresh_summary');cases=['rotating_hotsets','jittered_cycle_97','returning_sets_560','hot8_scan70']
     sm=lambda d,a:statistics.mean(float(r['faults_mean']) for r in syn if r['dataset']==d and r['algorithm']==a)
-    expected[14]=[[[1]*6,[sm(d,'adaptive')/sm(d,'lru') for d in cases]]]
+    expected[14]=[[[sm(d,'adaptive_v2') for d in cases],[sm(d,'adaptive') for d in cases]]]
     for slide,charts in expected.items():
         actual=chart_values(slide);assert len(actual)==len(charts)
         for ac,ex in zip(actual,charts):

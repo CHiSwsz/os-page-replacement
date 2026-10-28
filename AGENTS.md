@@ -3,7 +3,7 @@
 - This is the standalone repository `CHiSwsz/os-page-replacement`, separate from the OS kernel labs.
 - Work in Linux as `xzzduang` in WSL distribution `Ubuntu-22.04`, under `/home/xzzduang/os-course/os-page-replacement`.
 - Inspect the working tree first and preserve user work.
-- Use a feature branch and a PR with explicit base `main` in this repository. Do not merge or enable auto-merge; the user reviews and merges.
+- Use a feature branch and a PR with explicit base `main` in this repository. The user authorized the ongoing workflow on 2026-10-28: create the PR, wait for validation and CI to pass, then merge it yourself. Do not push implementation changes directly to `main`.
 - Current authorized scope: Random, FIFO, OPT/MIN, LFU, LRU, Second chance and the capacity/history-adaptive strategy, their validation, experiments, report and figures. Do not add another algorithm without a user request.
 - Keep LFU tie-breaking and frequency lifetime documented. Keep Random seeds and every raw result.
 - Build with CMake, run CTest, and run the sanitizer configuration for changes to the simulator.

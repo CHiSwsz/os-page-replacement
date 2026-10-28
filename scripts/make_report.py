@@ -58,12 +58,12 @@ def main():
         "## 1. 算法如何利用容量和访问特征", "",
         "一个程序接收页框数 F。小容量（F≤20）以 Random 起步，较大容量以 LRU 起步；后续策略不由文件名、页号或预先知道的轨迹类型决定。", "",
         "同时维护三个仅含页号的影子模拟器，分别执行 Random、LRU 和历史间隔预测。它们只处理已经发生的访问，用于比较过去一段窗口内的缺页次数。**影子状态没有页面内容，切换策略时不会把影子页面复制进真实内存。真实内存始终只有 F 个页框，只在当前缺页时装入当前页。**", "",
-        "历史间隔预测为最近 H 个不同页号保留末次访问位置和间隔统计，包括已被淘汰的页。一个页再次出现时，用指数平滑更新访问间隔 g 和波动 v（旧统计权重 0.75，新样本权重 0.25）。预测参考间隔为 g+v。若距上次访问的时间还没超过该值，就用剩余间隔评分；若已经逾期，评分改为已经等待的时间，使过时页面逐渐失去保护。没有重复历史的页面优先考虑淘汰，评分相同时选最久未访问的页。这个预测是启发式，不是 OPT 的真实未来位置。", "",
+        "历史间隔预测为最近 H 个不同页号保留末次访问位置和间隔统计，包括已被淘汰的页。一个页再次出现时，用指数平滑更新访问间隔 g，V3 使用 g←0.5g+0.5Δ，首次重复直接令 g=Δ。预测参考间隔仅为 g，移除 V2 的波动附加项，避免一次长间隔长期压低该页的优先级。若距上次访问的时间还没超过该值，就用剩余间隔评分；若已经逾期，评分改为已经等待的时间，使过时页面逐渐失去保护。没有重复历史的页面优先考虑淘汰，评分相同时选最久未访问的页。这个预测是启发式，不是 OPT 的真实未来位置。", "",
         "每经过约 W/4 次访问，比较过去 W 次访问中三个影子策略的缺页数。F≤20 时切换门槛为 max(1, floor(W/50))；F>20 时提高到 max(1, floor(W/20))，候选策略必须比当前策略少超过该门槛才切换。比较只用截至前一次访问的结果。", "",
-        "新版 V2 在 F>20 时，每 W 次访问把真实缓存的页号、最近访问位置和随机数状态复制到三个影子模拟器，作为下一轮比较的共同起点。复制方向始终为真实到影子。窗口内部仍允许策略切换，所以这只能减少状态不一致，不能保证影子收益完全兑现。F≤20 保留 V1 规则，避免频繁重置破坏小容量下的预测收益。", "",
-        "默认 H=max(32,16F)。F≤20 时 W=max(32,4F)，F>20 时 W=2×max(32,4F)，所有课程轨迹使用同一组容量规则：", "",
+        "V3 保留 V2 的对齐机制：在 F>20 时，每 W 次访问把真实缓存的页号、最近访问位置和随机数状态复制到三个影子模拟器，作为下一轮比较的共同起点。复制方向始终为真实到影子。窗口内部仍允许策略切换，所以这只能减少状态不一致，不能保证影子收益完全兑现。F≤20 不重置影子缓存；V3 的间隔更新方式在所有容量均生效。", "",
+        "默认 F≤20 时 H=max(32,16F)，F>20 时 H=max(32,8F)，避免保留太久以前的间隔。F≤20 时 W=max(32,4F)，F>20 时 W=2×max(32,4F)，所有课程轨迹使用同一组容量规则：", "",
         table(["页框 F","初始策略","比较窗口 W","历史页号上限 H"],
-              [[f,"Random" if f<=20 else "LRU",max(32,4*f)*(1 if f<=20 else 2),max(32,16*f)] for f in FRAMES]), "",
+              [[f,"Random" if f<=20 else "LRU",max(32,4*f)*(1 if f<=20 else 2),max(32,(8 if f>20 else 16)*f)] for f in FRAMES]), "",
         "容量越大，算法保留更长的历史、用更长的窗口判断策略表现；但初始策略可以在运行中改变。这不是提前为每条测试轨迹选择最好的算法。", "",
         "## 2. 实验口径", "",
         "四条轨迹：qsort（sort1.txt，524 次访问 / 192 个不同页）、lu（41,832 / 531）、mm16（9,075 / 515）、mm32（67,235 / 1,667）。输入已经是十六进制虚拟页号。每次模拟从空内存开始，不预取。", "",
@@ -72,15 +72,15 @@ def main():
         "## 3. 按课件示例绘制的对比图", "",
         "课件第 8 页示例采用分组柱状图，并把基准值归一化为 1。这里同时提供绝对缺页次数的分组柱状图，以及 LRU=1 的两柱对比图，避免只看比例而忽略实际数量。", "",
         "![各容量下七种方法的缺页次数](results/comparison_by_frames.png)", "",
-        "图中 Adaptive 在小容量的优势较明显，mm32 在 50 个页框时也有大幅改善。新版在 mm16 的 50/100 页框和 mm32 的 100 页框上均与 LRU 持平。误差线为 Random / Adaptive 的均值 ±1 个样本标准差，是固定轨迹上随种子变化的波动。", "",
+        "图中 Adaptive 在小容量的优势较明显，mm32 在 50 个页框时也有大幅改善。V3 在 mm16/100 上进一步低于 LRU，在 mm16/50 与 mm32/100 上保持与 LRU 相同。误差线为 Random / Adaptive 的均值 ±1 个样本标准差，是固定轨迹上随种子变化的波动。", "",
         "![相对 LRU 归一化的缺页次数](results/normalized_vs_lru.png)", "",
         "灰柱是 LRU=1，深色柱为 Adaptive/LRU；低于 1 表示 Adaptive 缺页更少。右下角先对五档容量平均缺页次数，再相除。本次所有配置均不差于 LRU，但 qsort/100 仍比 Random 差，也不能据此保证未知轨迹。", "",
         "## 4. 各方法、各 frame 数的详细缺页次数", ""]
     explanations={
         "qsort":"小容量下历史间隔预测帮助保留即将重用的页面。50、100 个页框时 Adaptive 没有切换，全部使用 LRU；因此均为 199 次。100 个页框下 Random 的均值 196.30 反而更低，说明短轨迹的启动期和窗口长度会影响自适应收益。",
         "lu":"Adaptive 在五档容量上都优于在线基线。小容量阶段大部分时间采用间隔预测；50 个页框时在 LRU 和预测之间切换，100 个页框时以预测为主。容量增大仍能显著降低缺页，但与 OPT 的差距表明历史估计尚不能准确捕获所有未来复用。",
-        "mm16":"5、10、20 个页框保留原有收益。50、100 个页框新版均为 2,964 次，与 LRU 持平，修复了旧版对应的 3,013 和 3,231.33 次退化。",
-        "mm32":"50 个页框时新版缺页 21,633 次，明显低于 Random 的 39,745.63 和 LRU 的 51,860，但比旧版 21,605.63 略多 0.127%。100 个页框新版为 19,604 次，与 LRU 持平。"}
+        "mm16":"V3 在 100 页框时平均缺页 2,714.17 次，相比 V2 的 2,964 次减少 8.43%。50 页框仍与 LRU 相同。",
+        "mm32":"20 页框时 V3 比 V2 少 812 次，50 页框时少 454 次。100 页框仍为 19,604 次，与 LRU 持平。10 页框多 4 次，属于本轮退化配置。"}
     for dataset in DATASETS:
         paragraphs.extend([f"### {dataset}", "",table(["Frames",*[NAMES[a] for a in ALGORITHMS]],
             [[f,*[f"{float(data[(dataset,f,a)]['faults_mean']):,.2f}" if a in {"random","adaptive"} else f"{int(data[(dataset,f,a)]['faults_mean']):,}" for a in ALGORITHMS]] for f in FRAMES]),
@@ -100,7 +100,7 @@ def main():
         parameter_table.append([w,h,*[display(statistics.mean(float(r['faults_mean']) for r in chosen if r['dataset']==ds)) for ds in DATASETS],
                                 display(statistics.mean(float(r['faults_mean']) for r in chosen))])
     paragraphs.extend([table(["窗口因子","历史因子",*DATASETS,"总体平均"],parameter_table),"",
-        "表内每条轨迹先平均五档容量。V2 在 F>20 时对窗口再乘 2。默认 4/16 与容量规则通过已知课程轨迹的探索确定；本表属于参数敏感性分析，不能当作未见数据上的证据。没有按文件名或页号选择参数。", "",
+        "表内每条轨迹先平均五档容量。V3 在 F>20 时对窗口再乘 2，对历史因子减半并向下取整至至少 1。默认 4/16 与容量规则通过已知课程轨迹的探索确定；本表属于参数敏感性分析，不能当作未见数据上的证据。没有按文件名或页号选择参数。", "",
         "## 7. 构造轨迹回归测试", "",
         "补充六类压力测试：纯顺序扫描、73 页循环、149 页循环、热点夹杂扫描、访问阶段切换、256 页均匀独立随机访问。每类仍测试五档容量和七种算法，随机算法各 30 个种子，共 1,950 次运行。轨迹由脚本确定性生成，保留文件和校验值。这些数据不是老师的隐藏测试集，不能代替现场验证。", "",
         "![构造轨迹压力测试](results/synthetic_comparison.png)", ""])
@@ -109,7 +109,7 @@ def main():
     for ds in dict.fromkeys(r["dataset"] for r in synthetic):
         synthetic_table.append([ds,*[f"{statistics.mean(float(r['faults_mean']) for r in synthetic if r['dataset']==ds and r['algorithm']==a):,.2f}" for a in ["random","lru","opt","adaptive"]]])
     paragraphs.extend([table(["构造轨迹","Random","LRU","OPT","Adaptive"],synthetic_table),"",
-        "表中是五档容量平均缺页次数，图中是平均缺页率。纯扫描没有复用，所有方法均缺页 6,000 次。六条构造轨迹在 V1 阶段已经看过，本次只作为回归测试，不能称为全新验证集；V2 参数固定后重新运行，未据此进一步调参。课堂的新轨迹仍需现场评测。", "",
+        "表中是五档容量平均缺页次数，图中是平均缺页率。纯扫描没有复用，所有方法均缺页 6,000 次。六条构造轨迹在 V1 阶段已经看过，本次只作为回归测试，不能称为全新验证集；V3 参数固定后重新运行，未据此进一步调参。课堂的新轨迹仍需现场评测。", "",
         "## 8. 开销与局限", "",
         "Adaptive 维护真实缓存 F 个页框、三个影子缓存的页号元数据、最多 H 个历史页号，以及 W 条三策略缺页记录。默认参数下额外元数据为 O(F)，并非零开销；影子缓存不占用额外的真实页面内容。每次访问期望 O(1) 更新历史；真实或影子策略需要选择 LRU/预测淘汰对象时会扫描 F 个页框，整个模拟的期望上界为 O(NF)。", "",
         "下表是在相同 WSL 环境的 Release 可执行程序上，运行 mm32 / 100 个页框 / seed=0 的端到端耗时。每种方法预热一次，再以打乱顺序测量 10 次。包含进程启动、输入解析和模拟，不是实际操作系统的缺页处理延迟。", ""])
@@ -118,17 +118,28 @@ def main():
         [[NAMES[r["algorithm"]],f"{float(r['median_ms']):.2f}",f"{float(r['min_ms']):.2f}",f"{float(r['max_ms']):.2f}"] for r in timing]),"",
         "Adaptive 的模拟开销明显高于简单基线，这是维护影子策略和间隔预测的代价。优化缺页次数不等于使模拟器本身运行更快。策略选择还有窗口滞后、预测错误和真实/影子缓存状态不一致等限制，没有对任意未知轨迹优于全部基线的保证。", "",
         "## 9. 正确性与复现", "",
-        "Release、AddressSanitizer 和 UndefinedBehaviorSanitizer 测试通过。算法测试共 1,639,425 项检查，包括 1,093 条小轨迹 × 四档测试容量 × 七种算法，OPT 对照独立穷举最优解，Second chance 对照队列参考实现。另验证 V1/V2 在 F≤20 时逐步决策一致。", "",
+        "Release、AddressSanitizer 和 UndefinedBehaviorSanitizer 测试通过。算法测试包括 1,093 条小轨迹 × 四档测试容量 × 七种算法，OPT 对照独立穷举最优解，Second chance 对照队列参考实现。另验证 V1/V2 在 F≤20 时逐步决策一致。", "",
         "增加了在线前缀不变性检查：截断未来后缀时，前面的命中、页框和淘汰决定保持一致。另检查页号重命名不变性、随机种子复现、策略切换后的物理容量约束、历史上限与参数范围。正式实验验证 OPT 下界、LRU/OPT 容量单调性，并做了 28 次足够内存检查；真实轨迹的 LRU 结果也与独立重用距离计算一致。", "",
         "复现命令见 [README](README.md)。[raw.csv](results/raw.csv) 保存全部正式运行，[summary.csv](results/summary.csv) 保存每组均值、标准差和极值；[parameters_raw.csv](results/parameters_raw.csv)、[synthetic_raw.csv](results/synthetic_raw.csv) 保存补充实验原始记录。所有图均附 PNG 和 SVG，可直接插入汇报 PPT。", "",
         "现有四条课程轨迹已用于理解访问规律，因此不能把它们称为真正未见的泛化评测。课堂新轨迹必须按输入顺序运行，不能预扫未来频次或下一次访问位置；只有 OPT 基线允许使用未来信息。", ""])
     versions=read("version_comparison.csv")
-    old=statistics.mean(float(r['v1']) for r in versions)
+    old=statistics.mean(float(r['v2']) for r in versions)
     paragraphs.extend(["## 10. 本轮优化前后对照", "",
-        f"V1 总体平均 {old:,.2f}，V2 为 {mean('adaptive'):,.2f}，进一步降低 {100*(1-mean('adaptive')/old):.3f}%。20 个配置中 5 个改善、14 个完全一致、1 个轻微退化。", "",
-        table(["轨迹","Frames","V1","V2","缺页变化"],[[r['dataset'],r['frames'],f"{float(r['v1']):,.2f}",f"{float(r['v2']):,.2f}",f"{float(r['difference']):+,.2f}"] for r in versions]),"",
-        "![V1 与 V2 在大容量的对比](results/version_comparison.png)","",
-        "保留 `--adaptive-version 1` 可复现旧版，默认是 2。[versions_raw.csv](results/versions_raw.csv) 保存相同种子下两版的 1,200 条记录。探索阶段先在种子 0～4 上比较重置周期、窗口与门槛，再固定容量规则并用 0～29 完整复测。已知课程数据参与了选择，收益只是本数据上的实测结果。", ""])
+        f"V2 总体平均 {old:,.2f}，V3 为 {mean('adaptive'):,.2f}，进一步降低 {100*(1-mean('adaptive')/old):.3f}%。20 个配置中 9 个改善、6 个完全一致、5 个退化。", "",
+        table(["轨迹","Frames","V2","V3","缺页变化"],[[r['dataset'],r['frames'],f"{float(r['v2']):,.2f}",f"{float(r['v3']):,.2f}",f"{float(r['difference']):+,.2f}"] for r in versions]),"",
+        "![V2 与 V3 在大容量的对比](results/version_comparison.png)","",
+        "保留 `--adaptive-version 1|2` 可复现旧版，默认是 3。[versions_raw.csv](results/versions_raw.csv) 保存相同种子下三版的 1,800 条记录。旧版 1,200 条记录与上一提交逐字段一致。探索阶段先在种子 0～4 上比较 15 个候选方案，包括历史长度、平滑系数、波动惩罚与切换门槛，选择课程配置平均缺页最少者，再固定规则用 0～29 复测。[v3_search.csv](results/v3_search.csv) 保存全部 1,500 条初筛结果，`scripts/explore_v3.py` 可从固定的 V2 提交重建。已知课程数据参与了选择，收益只是本数据上的实测结果。", ""])
+    fresh=read("fresh_summary.csv")
+    fresh_table=[]
+    for ds in dict.fromkeys(r["dataset"] for r in fresh):
+        av=lambda a:statistics.mean(float(x["faults_mean"]) for x in fresh if x["dataset"]==ds and x["algorithm"]==a)
+        fresh_table.append([ds,*[f"{av(a):,.2f}" for a in ["adaptive_v2","adaptive","lru","opt"]],f"{100*(av('adaptive')/av('adaptive_v2')-1):+.3f}%"])
+    paragraphs.extend(["## 11. 新增构造压力测试", "",
+        "在冻结 V3 之前定义四类额外轨迹，在规则固定后第一次查看结果，未根据结果继续调参。这些是构造测试，仍不能当作老师的隐藏数据。包括轮换热点、相邻访问顺序扰动的 97 页循环、7 组各 80 页交替回访、8 页热点混入 70 页扫描。每条覆盖五档容量，V2、V3、Random 各 30 个种子，其余基线各一次，共 1,900 条记录。", "",
+        table(["轨迹","V2","V3","LRU","OPT","V3 相对 V2"],fresh_table), "",
+        "表内先对五档容量等权平均，正百分比表示退化。扰动循环平均退化 0.938%，其中 10/20/50 页框分别多 70.77/128.43/38 次缺页；快速更新更容易受短期扰动影响。轮换热点的整体收益很小，但 5 页框退化约 42.97 次。热点加扫描在 5 页框多 5.47 次；交替回访完全相同。课程数据上的总体收益不能外推为所有新轨迹都会改善。", "",
+        "![新增构造轨迹 V2/V3 对照](results/fresh_comparison.png)", "",
+        "全部整数运行与轨迹校验值见 [fresh_raw.csv](results/fresh_raw.csv)、[fresh_summary.csv](results/fresh_summary.csv) 和 [fresh_metadata.json](results/fresh_metadata.json)。"])
     (ROOT/"REPORT.md").write_text("\n\n".join(p for p in paragraphs if p!="")+"\n",encoding="utf-8")
     print("Generated REPORT.md, mean count table and seed-0 integer count table.")
 

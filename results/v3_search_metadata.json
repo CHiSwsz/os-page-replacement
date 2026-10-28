@@ -1,0 +1,14 @@
+{
+  "base_commit": "3d4397108057d9dba434af5e9e66c7afa8b1f67e",
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "rows": 1500,
+  "variants": 15,
+  "selected": "fast_dev0",
+  "selection": "Lowest mean fault count across the 20 supplied course configurations, averaged over seeds 0..4. This is in-sample tuning. Rules frozen before 30-seed rerun and fresh constructed workloads. Minor per-configuration regressions accepted; no universal improvement claim."
+}

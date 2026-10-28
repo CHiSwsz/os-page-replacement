@@ -117,23 +117,23 @@ def main():
     versions=read(out/'version_comparison.csv')
     fig,axes=plt.subplots(1,4,figsize=(14,4.6))
     fig.subplots_adjust(left=.065,right=.985,top=.78,bottom=.24,wspace=.38)
-    fig.suptitle('V1 vs V2 at 50 / 100 frames',x=.065,y=.96,ha='left',fontsize=21,fontweight='bold')
+    fig.suptitle('V2 vs V3 at 50 / 100 frames',x=.065,y=.96,ha='left',fontsize=21,fontweight='bold')
     for ax,ds in zip(axes,DATASETS):
         rows=[r for r in versions if r['dataset']==ds and int(r['frames'])>20]
         x=np.arange(2)
-        for i,(key,color) in enumerate([('v1','#a7adb4'),('v2','#6b4a82')]):
+        for i,(key,color) in enumerate([('v2','#a7adb4'),('v3','#6b4a82')]):
             ax.bar(x+(i-.5)*.36,[float(r[key]) for r in rows],.36,label=key.upper(),color=color)
         ax.set_xticks(x,['50','100']);ax.set_xlabel('Physical frames');ax.set_title(ds,loc='left');style(ax)
     axes[0].set_ylabel('Page faults')
     fig.legend(*axes[0].get_legend_handles_labels(),loc='lower center',bbox_to_anchor=(.5,.07),ncol=2,frameon=False)
-    fig.text(.065,.02,'30 paired seeds. Small capacities unchanged; mm32 / 50 regresses by 0.127%.',fontsize=10,color='#555555')
+    fig.text(.065,.02,'30 paired seeds. Across all 20 configurations: 9 improve, 6 tie, 5 regress.',fontsize=10,color='#555555')
     save(fig,out,'version_comparison')
 
     parameters=read(out/"parameters_summary.csv")
     fig,axes=plt.subplots(1,2,figsize=(13,5.5))
     fig.subplots_adjust(left=0.08,right=0.98,top=0.8,bottom=0.24,wspace=0.25)
     fig.suptitle("Adaptive parameter sensitivity",x=0.08,y=0.96,ha="left",fontsize=21,fontweight="bold")
-    fig.text(0.08,0.87,"Mean faults over the five capacities, normalized to the default (window=4F, history=16F).",color="#555555",fontsize=10)
+    fig.text(0.08,0.87,"Mean faults over the five capacities, normalized to the default factors (window=4, history=16).",color="#555555",fontsize=10)
     for ax,parameter,factors,fixed in [(axes[0],"window_factor",[2,4,8],("history_factor",16)),
                                       (axes[1],"history_factor",[8,16,32],("window_factor",4))]:
         x=np.arange(4)
@@ -143,14 +143,14 @@ def main():
                 selected=[r for r in parameters if r["dataset"]==dataset and int(r[parameter])==factor and int(r[fixed[0]])==fixed[1]]
                 default=statistics.mean(float(data[(dataset,f,"adaptive")]["faults_mean"]) for f in FRAMES)
                 values.append(statistics.mean(float(r["faults_mean"]) for r in selected)/default)
-            ax.bar(x+(j-1)*0.24,values,0.24,label=f"{factor} × frames",color=["#9aa7b4","#101827","#3f8e9f"][j])
+            ax.bar(x+(j-1)*0.24,values,0.24,label=f"factor {factor}",color=["#9aa7b4","#101827","#3f8e9f"][j])
         ax.set_xticks(x,DATASETS)
         ax.set_ylabel("Mean faults / default mean faults")
         ax.set_title("Comparison window" if parameter=="window_factor" else "Page-ID history capacity",loc="left")
         style(ax)
         ax.axhline(1,color="#555555",linestyle=":",linewidth=1)
         ax.legend(loc="upper center",bbox_to_anchor=(0.5,-0.13),ncol=3,frameon=False,fontsize=9)
-    fig.text(0.08,0.03,"Both limits have a minimum of 32. Each setting uses 30 seeds; defaults are shared across all traces.",fontsize=10,color="#555555")
+    fig.text(0.08,0.03,"For F>20, window doubles and history factor halves. 30 seeds per setting; common rules across traces.",fontsize=10,color="#555555")
     save(fig,out,"parameter_sensitivity")
 
     synthetic=read(out/"synthetic_summary.csv")
@@ -168,6 +168,19 @@ def main():
     style(ax)
     ax.legend(loc="upper center",bbox_to_anchor=(0.5,-0.28),ncol=3,frameon=False)
     save(fig,out,"synthetic_comparison")
+    fresh=read(out/"fresh_summary.csv")
+    cases=list(dict.fromkeys(r["dataset"] for r in fresh))
+    fig,ax=plt.subplots(figsize=(12,5.5))
+    fig.subplots_adjust(left=.08,right=.98,top=.81,bottom=.27)
+    fig.suptitle("Additional constructed stress tests: V2 vs V3",x=.08,y=.96,ha='left',fontsize=20,fontweight='bold')
+    fig.text(.08,.87,"Frozen rules before evaluation. Five-capacity means, 30 seeds. Lower is better.",color='#555555')
+    x=np.arange(len(cases))
+    for i,(a,label,color) in enumerate([('adaptive_v2','V2','#a7adb4'),('adaptive','V3','#6b4a82')]):
+        vals=[statistics.mean(float(r['faults_mean']) for r in fresh if r['dataset']==d and r['algorithm']==a) for d in cases]
+        ax.bar(x+(i-.5)*.36,vals,.36,label=label,color=color)
+    ax.set_xticks(x,[d.replace('_','\n') for d in cases]);ax.set_ylabel('Page faults');style(ax)
+    ax.legend(loc='upper center',bbox_to_anchor=(.5,-.19),ncol=2,frameon=False)
+    save(fig,out,'fresh_comparison')
     print("Saved grouped, normalized, sensitivity, synthetic and per-trace figures (PNG + SVG).")
 
 
