@@ -1,0 +1,162 @@
+// Development prototype: bounded delayed-label reuse predictors inspired by
+// LRB (NSDI 2020) and LIRS2 (2021). This is not a reproduction of either paper.
+// Labels are added only after the corresponding page returns or its history
+// record expires. Never receives a trace array or a future-reference index.
+#pragma once
+#include <array>
+#include <cstdint>
+#include <deque>
+#include <limits>
+#include <list>
+#include <unordered_map>
+#include <cmath>
+#include <algorithm>
+
+namespace paging {
+class ReuseModel {
+    static constexpr std::size_t sample_count = 16;
+    static constexpr double infinity = std::numeric_limits<double>::infinity();
+    struct Key {
+        std::uint64_t a=0, b=0, c=0;
+        unsigned kind=0;
+        bool operator==(const Key& x) const { return a==x.a && b==x.b && c==x.c && kind==x.kind; }
+    };
+    struct Hash {
+        std::size_t operator()(const Key& k) const {
+            return std::hash<std::uint64_t>{}(k.a) ^ (k.b*0x9e3779b97f4a7c15ULL) ^
+                   (k.c*0x517cc1b727220a95ULL) ^ (k.kind*0x94d049bb133111ebULL);
+        }
+    };
+    struct Model {
+        std::array<double,sample_count> samples{};
+        std::size_t size=0, cursor=0;
+        double ewma=0;
+        std::list<Key>::iterator position;
+    };
+    struct Record {
+        std::size_t last=0, gap=0, previous=0, count=1;
+        std::array<Key,5> keys{};
+        std::array<std::size_t,8> gaps{};
+        std::size_t used=0;
+        std::list<Page>::iterator position;
+    };
+    std::size_t history_limit_, model_limit_, horizon_;
+    std::list<Page> order_;
+    std::unordered_map<Page,Record> records_;
+    std::list<Key> model_order_;
+    std::unordered_map<Key,Model,Hash> models_;
+    Page predecessor_=0;
+    bool have_predecessor_=false;
+
+    static std::size_t bucket(std::size_t gap) {
+        if (gap<16) return gap;
+        unsigned exponent=0;
+        std::size_t n=gap;
+        while (n>=16) { n >>= 1; ++exponent; }
+        return 16 + (exponent-1)*8 + (n-8);
+    }
+    void train(const Key& key,double label) {
+        auto found=models_.find(key);
+        if(found==models_.end()) {
+            if(models_.size()==model_limit_) {
+                models_.erase(model_order_.front()); model_order_.pop_front();
+            }
+            model_order_.push_back(key);
+            Model model; model.position=std::prev(model_order_.end());
+            found=models_.emplace(key,model).first;
+        } else model_order_.splice(model_order_.end(),model_order_,found->second.position);
+        auto& m=found->second;
+        m.samples[m.cursor]=label;
+        m.cursor=(m.cursor+1)%sample_count;
+        m.size=std::min(sample_count,m.size+1);
+        if(std::isfinite(label)) m.ewma=m.ewma ? .5*m.ewma+.5*label : label;
+    }
+    double estimate(const Key& key,double age,bool conditional) const {
+        const auto it=models_.find(key);
+        if(it==models_.end() || it->second.size<2) return infinity;
+        const auto& m=it->second;
+        if(!conditional) {
+            if(!m.ewma) return infinity;
+            return age<m.ewma ? m.ewma-age : age;
+        }
+        double cost=0, hits=0;
+        for(std::size_t j=0;j<m.size;++j) {
+            const auto value=m.samples[j];
+            if(!std::isfinite(value)) cost+=std::max(1.0,static_cast<double>(horizon_)-age);
+            else if(value>age) { cost+=value-age; ++hits; }
+        }
+        return hits ? cost/hits : infinity;
+    }
+    double fallback(const Record& r,double age) const {
+        if(!r.gap) return infinity;
+        return age<r.gap ? r.gap-age : age;
+    }
+public:
+    ReuseModel(std::size_t capacity,std::size_t factor)
+      :history_limit_(std::max(std::size_t{32},capacity*factor)),
+       model_limit_(history_limit_*8),horizon_(std::max(std::size_t{64},capacity*32)) {}
+
+    double score(Page page,std::size_t now,std::size_t policy) const {
+        auto it=records_.find(page);
+        if(it==records_.end()) return infinity;
+        const auto& r=it->second;
+        const double age=static_cast<double>(now-r.last);
+        if(policy<5) {
+            const auto value=estimate(r.keys[policy],age,false);
+            return std::isfinite(value)?value:fallback(r,age);
+        }
+        if(policy<8) {
+            const unsigned key=static_cast<unsigned>(policy-4);
+            const auto it_model=models_.find(r.keys[key]);
+            if(it_model==models_.end() || it_model->second.size<4) return fallback(r,age);
+            return estimate(r.keys[key],age,true);
+        }
+        if(policy==8) return fallback(r,age);
+        if(policy==9) {
+            const auto value=r.previous ? r.previous : r.gap;
+            return !value ? infinity : age<value ? value-age : age;
+        }
+        if(policy==10) return r.gap ? age+r.gap : infinity;
+        // Search only this page's already completed gap sequence for a prior
+        // occurrence of the current gap suffix, then replay its observed next gap.
+        std::size_t prediction=0, best=0;
+        for(std::size_t anchor=1;anchor<r.used;++anchor) {
+            std::size_t matched=0;
+            while(anchor+matched<r.used && r.gaps[matched]==r.gaps[anchor+matched]) ++matched;
+            if(matched>best) { best=matched; prediction=r.gaps[anchor-1]; }
+        }
+        if(!best) return fallback(r,age);
+        return age<prediction ? prediction-age : age;
+    }
+
+    void observe(Page page,std::size_t now) {
+        auto it=records_.find(page);
+        if(it==records_.end()) {
+            if(records_.size()==history_limit_) {
+                const auto old=records_.find(order_.front());
+                for(const auto& key:old->second.keys) train(key,infinity);
+                records_.erase(old); order_.pop_front();
+            }
+            order_.push_back(page);
+            Record r; r.last=now; r.position=std::prev(order_.end());
+            it=records_.emplace(page,r).first;
+        } else {
+            auto& r=it->second;
+            const auto gap=now-r.last;
+            for(const auto& key:r.keys) train(key,static_cast<double>(gap));
+            r.previous=r.gap; r.gap=gap; r.last=now; ++r.count;
+            for(std::size_t j=r.gaps.size()-1;j>0;--j) r.gaps[j]=r.gaps[j-1];
+            r.gaps[0]=gap; r.used=std::min(r.used+1,r.gaps.size());
+            order_.splice(order_.end(),order_,r.position);
+        }
+        auto& r=it->second;
+        const auto gap=bucket(r.gap), prior=bucket(r.previous);
+        r.keys[0]=Key{page,gap,0,0};
+        r.keys[1]=Key{gap,0,0,1};
+        r.keys[2]=Key{gap,prior,0,2};
+        r.keys[3]=Key{have_predecessor_?predecessor_:page,gap,0,3};
+        r.keys[4]=Key{gap,prior,std::min(std::size_t{4},r.count),4};
+        predecessor_=page; have_predecessor_=true;
+    }
+};
+} // namespace paging

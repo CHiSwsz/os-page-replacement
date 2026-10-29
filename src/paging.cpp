@@ -1,4 +1,5 @@
 #include "paging.hpp"
+#include "learned.hpp"
 
 #include <algorithm>
 #include <charconv>
@@ -93,7 +94,10 @@ Result simulate(const std::vector<Page>& trace, std::size_t capacity,
                 Algorithm algorithm, std::uint64_t seed, bool record_events, AdaptiveOptions options) {
     if (capacity == 0) throw std::invalid_argument("frame count must be positive");
     (void)name(algorithm);  // Reject invalid enum values even for empty traces.
-    if (algorithm == Algorithm::Adaptive) return simulate_adaptive(trace, capacity, seed, record_events, options);
+    if (algorithm == Algorithm::Adaptive) {
+        if (options.version == 5) return simulate_v5(trace, capacity, seed, record_events, options);
+        return simulate_adaptive(trace, capacity, seed, record_events, options);
+    }
     Result result;
     result.references = trace.size();
     if (record_events) result.events.reserve(trace.size());

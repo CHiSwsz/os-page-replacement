@@ -28,7 +28,7 @@ def main():
         with trace.open('w') as stream:
             for i in range(n): stream.write(f'{i:x}\n')
         usage=directory/'resource.txt'
-        command=[str(binary),str(trace),'--format','json']
+        command=[str(binary),str(trace),'--format','json','--adaptive-version','4']
         if Path('/usr/bin/time').exists(): command=['/usr/bin/time','-f','%e,%M','-o',str(usage),*command]
         start=time.perf_counter()
         result=json.loads(subprocess.check_output(command,text=True))

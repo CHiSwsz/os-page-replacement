@@ -1,0 +1,13 @@
+{
+  "slides": 15,
+  "notes": 15,
+  "rendered": "LibreOffice 7.3 PDF, 15 pages",
+  "layout_review": "Rendered all 15 pages and inspected contact sheet; no clipped tables, overlapping text or missing glyphs observed.",
+  "numeric_validation": "Native chart and four appendix tables independently checked against final CSV by scripts/verify_v5.py",
+  "sha256": {
+    "presentation/contest-v5.pptx": "8e83bd4cf3bfa788a9c6786095450fe26cacb459e017c4e20083aff890e2b5b1",
+    "presentation/contest-v5.pdf": "2090df95d7e77a90b114880b547ef3e194ba0eee6f778b1a1247a5af7f904a11",
+    "presentation/build_v5.py": "616eb98117bf37ad4d8e6f79ceb59620801a67fe0062ce3df892eefc16ff6442",
+    "presentation/V5_SPEAKER_NOTES.md": "b6ba5f5bebd3a297fd8ec8cff983da9bbf9940b8b687bd24f37f1f4ec8bc5d5f"
+  }
+}

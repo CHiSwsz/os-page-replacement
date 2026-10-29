@@ -11,7 +11,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Configure
-        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DENABLE_SANITIZERS=${{ matrix.sanitizers }}
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=${{ matrix.sanitizers == 'ON' && 'Debug' || 'Release' }} -DENABLE_SANITIZERS=${{ matrix.sanitizers }}
       - name: Build
         run: cmake --build build -j4
       - name: Tests
@@ -30,3 +30,8 @@ jobs:
           python3 scripts/contest_experiments.py --suite course --out build/reproduced-v4
           diff results/v4/course_raw.csv build/reproduced-v4/course_raw.csv
           diff results/v4/course_summary.csv build/reproduced-v4/course_summary.csv
+          python3 scripts/verify_v5.py
+          python3 scripts/reproduce_v5_baselines.py
+          python3 scripts/learned_experiments.py --suite course --workers 2 --out build/reproduced-v5
+          diff results/v5/course_raw.csv build/reproduced-v5/course_raw.csv
+          diff results/v5/course_summary.csv build/reproduced-v5/course_summary.csv

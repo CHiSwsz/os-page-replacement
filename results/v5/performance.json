@@ -1,0 +1,24 @@
+{
+  "platform": "Linux-5.4.250-9-velinux1u2-amd64-x86_64-with-glibc2.35",
+  "binary_sha256": "a43946967850b95fc3bfd8d8216238330c57807720afb0754dee444fe264f6c4",
+  "scope": "Release end-to-end five-capacity simulator; includes parsing. This is simulation time, not OS page fault latency.",
+  "median_milliseconds": {
+    "3": 155.53077100776136,
+    "4": 994.7486590244807,
+    "5": 4493.660261039622
+  },
+  "unique_scan_scaling": [
+    {
+      "references": 10000,
+      "elapsed_seconds": 0.9475320390192792,
+      "peak_rss_kib": 20368,
+      "average_faults": 10000
+    },
+    {
+      "references": 1000000,
+      "elapsed_seconds": 95.11116650002077,
+      "peak_rss_kib": 20364,
+      "average_faults": 1000000
+    }
+  ]
+}

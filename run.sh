@@ -11,7 +11,7 @@ if command -v cmake >/dev/null 2>&1; then
 else
     mkdir -p "$project_dir/build-live"
     "${CXX:-c++}" -std=c++17 -O3 -Wall -Wextra -I"$project_dir/include" \
-        "$project_dir/src/paging.cpp" "$project_dir/src/adaptive.cpp" "$project_dir/src/context.cpp" \
+        "$project_dir/src/paging.cpp" "$project_dir/src/adaptive.cpp" "$project_dir/src/context.cpp" "$project_dir/src/learned.cpp" \
         "$project_dir/src/main.cpp" "$project_dir/src/contest.cpp" -o "$project_dir/build-live/pager"
 fi
 exec "$project_dir/build-live/pager" --contest "$@"

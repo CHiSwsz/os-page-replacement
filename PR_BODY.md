@@ -1,14 +1,15 @@
-The classroom runner previously required several flags and did not print the required five-capacity average. This change adds `bash run.sh TRACE.txt` / `pager TRACE.txt`, processes one page at a time with Adaptive V4, and prints faults for 5, 10, 20, 50 and 100 frames plus their arithmetic mean.
+The classroom runner reads one page ID per line and prints faults at 5, 10, 20, 50 and 100 frames plus their arithmetic mean. `bash run.sh TRACE.txt` now defaults to Adaptive V5; explicit versions 1–4 and the original experiment CSV schema remain available.
 
-Adaptive V4 combines bounded historical replay, decayed frequency, cold-page reuse priors and learned context signatures with the existing interval predictor. Exponentially decayed shadow losses and a switching margin choose the policy; actual frames are reconciled only through legal demand-page evictions. No future references, prefetching or shadow-resident copying are used. V1–V3 and the original experiment CSV schema remain available.
+V5 adds bounded delayed-label conditional reuse distributions to V4's predictors, then selects among 25 experts using past decayed miss counts. Context features include observed predecessors and already observed successors. The real cache only evicts a resident page and admits the current request; shadow caches store IDs, and the streaming predictor receives no future trace. The three frozen V4 core sources remain byte-identical.
 
-Across the four course traces and 20 configurations, V4 averages **17,002.35** faults versus V3 **17,100.79** and LRU **24,438.00** (15 improvements and 5 ties versus V3). Eight constructed workloads generated after rule freeze improve by **1.11%** on average, with the noisy-cycle regression retained. All seed-0..29 runs, parameter studies, candidate search records, source/data hashes, a Chinese guide, report and 17-slide deck are included. No claim is made about winning unseen classroom tests.
+Across four course traces / 20 configurations, mean faults decrease from V4 **17,002.35** to V5 **16,688.45** (**1.846%**), versus V3 **17,100.79** (**2.411%**). LU/100 improves by 1,498 faults and mm32/100 by 1,582. Versus V4, 14 course configurations improve, 4 tie and 2 regress. Ten newly constructed post-freeze workloads improve **2.91%** overall; all regressions and the development/validation distinction remain visible.
 
-Validation:
-- CMake Release and AddressSanitizer/UndefinedBehaviorSanitizer CTest pass, including more than 2.5 million assertions, exhaustive OPT checks, valid resident/victim events, prefix invariance, page-ID renaming and streaming/vector equivalence.
-- CLI checks cover the five-count mean, stdin, path spaces, UTF-8 BOM/CRLF, hexadecimal/decimal/token inputs, empty files and failures without partial scores.
-- 13,450 final experiment runs; legacy V3 results remain reproducible.
-- One-million-line unique scan returns exactly 1,000,000 faults for each capacity; measured peak RSS about 9.3 MiB in the streaming numeric mode.
-- PowerPoint chart/table data are checked against CSV; the deck is rendered locally to PDF for layout review. Linux is tested; the Windows launcher is provided but not claimed as tested.
+The tradeoff is more simulation work: local Release mm32/five-capacity median increases from about 0.99s to 4.49s. One million unique requests finish in about 95s with ~19.9 MiB peak RSS and exactly one million faults at each capacity. These are simulator timings, not OS fault latency.
 
-The simulator is slower than V3 because it maintains more predictors; the report includes the measured overhead. Historical V3 artifacts are explicitly separated from current V4 results.
+Validation and delivery:
+- Release and ASan/UBSan CTest: 3/3, including exact OPT dynamic-program bounds, physical resident/victim checks, prefix invariance, page-ID bijection, streaming/vector equality, bounded metadata and CLI input/average contracts.
+- 20,000 final runs with matching seed 0–29 ranges; 33,110 development/research records. Legacy V3 replay is byte-identical; V3/V4 course records agree with historical results.
+- Primary-paper research notes, failed trend/Markov/voting attempts and ARC/S3-FIFO-demand/SIEVE baselines are included, with source/data hashes. This is an independently engineered combination, not a claim to reproduce LRB/LHD or inherit their guarantees.
+- Updated Chinese guide, report, 15-slide deck, speaker notes and PDF; native chart/table values audited against CSV. Windows x64 is statically cross-compiled, not runtime-tested on Windows.
+
+No claim is made about universal optimality or winning every unseen classroom input. The new mm32 rehearsal mean is **35891.20**; explicit V4 retains **36558.20**.

@@ -176,8 +176,8 @@ python3 scripts/verify_v4.py
 - [Better and Simpler Learning-Augmented Online Caching, 2020](https://arxiv.org/abs/2005.13716)：预测策略与传统在线策略组合的背景。
 
 这些文献启发了设计方向；本作业的具体启发式、参数和影子选择机制是工程组合，不直接继承上述论文的竞争比或 regret 保证。''']
-    (ROOT/'REPORT.md').write_text('\n\n'.join(text)+'\n',encoding='utf-8')
-    print('Generated REPORT.md and V4 figures from recorded CSVs')
+    (ROOT/'REPORT_V4.md').write_text('\n\n'.join(text)+'\n',encoding='utf-8')
+    print('Generated REPORT_V4.md and V4 figures from recorded CSVs')
 
 
 if __name__=='__main__':main()

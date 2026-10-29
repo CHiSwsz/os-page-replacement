@@ -86,7 +86,7 @@ class CliTests(unittest.TestCase):
 
     def test_adaptive_options(self):
         args = ["--trace", self.trace, "--algorithm", "adaptive", "--frames", 2]
-        for invalid in [0, 5, -1]:
+        for invalid in [0, 6, -1]:
             self.assertEqual(self.run_cli(*args, "--adaptive-version", invalid).returncode, 2)
         self.assertEqual(self.run_cli(*args, "--adaptive-version", 1).stdout,
                          self.run_cli(*args, "--adaptive-version", 2).stdout)
@@ -103,10 +103,10 @@ class CliTests(unittest.TestCase):
         got = self.run_cli(self.trace, '--format', 'json')
         self.assertEqual(got.returncode, 0, got.stderr)
         payload = json.loads(got.stdout)
-        self.assertEqual(payload['version'], 4)
+        self.assertEqual(payload['version'], 5)
         self.assertEqual([r['frames'] for r in payload['results']], [5,10,20,50,100])
         self.assertEqual(payload['average_faults'], sum(r['faults'] for r in payload['results']) / 5)
-        old_interface = self.run_cli('--trace', self.trace, '--algorithm', 'adaptive', '--frames', '5,10,20,50,100', '--adaptive-version', 4)
+        old_interface = self.run_cli('--trace', self.trace, '--algorithm', 'adaptive', '--frames', '5,10,20,50,100', '--adaptive-version', 5)
         expected = list(csv.DictReader(io.StringIO(old_interface.stdout)))
         self.assertEqual([r['faults'] for r in payload['results']], [int(r['faults']) for r in expected])
         text = self.run_cli('--contest', '--trace', self.trace)

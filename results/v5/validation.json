@@ -1,0 +1,28 @@
+{
+  "release": "CTest 3/3 passed",
+  "asan_ubsan": "CTest 3/3 passed",
+  "legacy_assertions": 2519992,
+  "v5_assertions": 2759984,
+  "v5_short_traces": 3280,
+  "v5_short_capacities": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "v5_short_seeds": [
+    0,
+    17
+  ],
+  "legacy_replay": "1300 rows and summaries byte-identical",
+  "windows": "x86-64 MinGW static cross-compile; DLL imports KERNEL32.dll, msvcrt.dll; not runtime-tested",
+  "test_source_sha256": {
+    "tests/test_paging.cpp": "d1df82540aa3584504b667f52232bf5de7b10f52b30f91be19dd801bcdadd07c",
+    "tests/test_cli.py": "b1efc5e96574ba0c22aa4bc15ec04c9e9bb3d97c4b7b98109b3518f311f16520",
+    "tests/test_learned.cpp": "038dfd1fcab7e46a2faa2a6c0bfaa5b183dfe6301df2525605180f4aa94455df"
+  },
+  "logs_sha256": {
+    "release": "57ed1ae4e6ea761ac6a223c68c534836fe47b0016a27d7609cbbc9b78afa7ee3",
+    "asan_ubsan": "098d12f6bcef038ec23cc3884ce1e60349704445878786b3df93076b8ff3791b"
+  }
+}
