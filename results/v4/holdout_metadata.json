@@ -1,0 +1,115 @@
+{
+  "generated_at_utc": "2026-10-28T18:26:11.553760+00:00",
+  "suite": "holdout",
+  "frames": [
+    5,
+    10,
+    20,
+    50,
+    100
+  ],
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29
+  ],
+  "rows": 3800,
+  "datasets": [
+    {
+      "name": "zipf_1_05",
+      "path": "results/v4/holdout_traces/zipf_1_05.txt",
+      "references": 12000,
+      "unique_pages": 930,
+      "sha256": "0e25adfb100ce5fb50497ce70a1ccc64156cf03a14927dc1e2d8fd09eb69eca0"
+    },
+    {
+      "name": "zipf_1_5",
+      "path": "results/v4/holdout_traces/zipf_1_5.txt",
+      "references": 12000,
+      "unique_pages": 483,
+      "sha256": "564506940735880b7ef8afa2eeab98b64eb287a2892d28e19a7b9bdad28d2991"
+    },
+    {
+      "name": "markov_blocks",
+      "path": "results/v4/holdout_traces/markov_blocks.txt",
+      "references": 12000,
+      "unique_pages": 640,
+      "sha256": "d4d441a0ebe8b3aa21df898e2cef975dbe94a86f2fef8f460bf64d57c2cdac36"
+    },
+    {
+      "name": "drifting_popularity",
+      "path": "results/v4/holdout_traces/drifting_popularity.txt",
+      "references": 12000,
+      "unique_pages": 1498,
+      "sha256": "0cba231217d8d2e89650c2b80b856677bd62b5ef09bb9cd2f2e7e649d8dde084"
+    },
+    {
+      "name": "noisy_cycle_101",
+      "path": "results/v4/holdout_traces/noisy_cycle_101.txt",
+      "references": 10100,
+      "unique_pages": 201,
+      "sha256": "1c7e1ff7c5013622f58a9309d4519cea16e5096e9611c64a05a1c797c5cf82c1"
+    },
+    {
+      "name": "bursts_long_scans",
+      "path": "results/v4/holdout_traces/bursts_long_scans.txt",
+      "references": 10200,
+      "unique_pages": 7208,
+      "sha256": "034da0e17829e3ece2e3e4c8a9a58d7d3447e4f7fb921152b96a2f2ad7788fa9"
+    },
+    {
+      "name": "alternating_loops",
+      "path": "results/v4/holdout_traces/alternating_loops.txt",
+      "references": 12000,
+      "unique_pages": 250,
+      "sha256": "d10cc60ae268f28bee202610646b4b0c44471a5a2479ca109dc77afdfd1c16c8"
+    },
+    {
+      "name": "uniform_2048",
+      "path": "results/v4/holdout_traces/uniform_2048.txt",
+      "references": 12000,
+      "unique_pages": 2040,
+      "sha256": "ceb16358d8653eda727b335821cda8a88159adcd483c12572a545571a7c1a007"
+    }
+  ],
+  "algorithm_source": {
+    "version": 4,
+    "selected_candidate": "signature_short_history_start",
+    "selection_data": "4 course traces and 10 existing constructed traces, seed 0; all are development data",
+    "implementation_cleanup": "removed unused predecessor/gap-pattern computations and unused sliding loss buffer; retained decisions",
+    "source_sha256": {
+      "src/context.cpp": "c830e0eb05a65834872531a519be4c8402ea969c9e319eb574a458b8a4291770",
+      "src/adaptive.cpp": "3fd4042fc64643863aaaefac6bf47229e7178207aa19eb8b43112d96c1dedba0",
+      "include/paging.hpp": "2fe74e0dae2b8c384a4c8bd75c2d061ea3b2d479ddda6b5d04b01e3ca185cea6"
+    }
+  },
+  "platform": "Linux-5.4.250-9-velinux1u2-amd64-x86_64-with-glibc2.35",
+  "interpretation": "Constructed holdout after rule freeze; not instructor hidden tests."
+}

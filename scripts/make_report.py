@@ -140,8 +140,8 @@ def main():
         "表内先对五档容量等权平均，正百分比表示退化。扰动循环平均退化 0.938%，其中 10/20/50 页框分别多 70.77/128.43/38 次缺页；快速更新更容易受短期扰动影响。轮换热点的整体收益很小，但 5 页框退化约 42.97 次。热点加扫描在 5 页框多 5.47 次；交替回访完全相同。课程数据上的总体收益不能外推为所有新轨迹都会改善。", "",
         "![新增构造轨迹 V2/V3 对照](results/fresh_comparison.png)", "",
         "全部整数运行与轨迹校验值见 [fresh_raw.csv](results/fresh_raw.csv)、[fresh_summary.csv](results/fresh_summary.csv) 和 [fresh_metadata.json](results/fresh_metadata.json)。"])
-    (ROOT/"REPORT.md").write_text("\n\n".join(p for p in paragraphs if p!="")+"\n",encoding="utf-8")
-    print("Generated REPORT.md, mean count table and seed-0 integer count table.")
+    (ROOT/"REPORT_V3.md").write_text("# V3 历史实验存档\n\n当前入口默认 V4，见 [当前报告](REPORT.md)。下文保持 V3 实验时的口径；文中的‘默认’指当时版本。\n\n"+"\n\n".join(p for p in paragraphs if p!="")+"\n",encoding="utf-8")
+    print("Generated REPORT_V3.md, legacy mean count table and seed-0 integer count table.")
 
 
 if __name__ == "__main__":

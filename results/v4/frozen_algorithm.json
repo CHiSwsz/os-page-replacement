@@ -1,0 +1,11 @@
+{
+  "version": 4,
+  "selected_candidate": "signature_short_history_start",
+  "selection_data": "4 course traces and 10 existing constructed traces, seed 0; all are development data",
+  "implementation_cleanup": "removed unused predecessor/gap-pattern computations and unused sliding loss buffer; retained decisions",
+  "source_sha256": {
+    "src/context.cpp": "c830e0eb05a65834872531a519be4c8402ea969c9e319eb574a458b8a4291770",
+    "src/adaptive.cpp": "3fd4042fc64643863aaaefac6bf47229e7178207aa19eb8b43112d96c1dedba0",
+    "include/paging.hpp": "2fe74e0dae2b8c384a4c8bd75c2d061ea3b2d479ddda6b5d04b01e3ca185cea6"
+  }
+}

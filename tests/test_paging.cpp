@@ -5,6 +5,8 @@
 #include <deque>
 #include <iostream>
 #include <map>
+#include <numeric>
+#include <random>
 #include <set>
 #include <sstream>
 #include <stdexcept>
@@ -229,6 +231,55 @@ void exhaustive() {
     check(trace_count == 1093, "exhaustive trace count");
 }
 
+void v4_streaming_checks() {
+    for (std::uint64_t seed = 0; seed < 6; ++seed) {
+        std::mt19937_64 rng(seed);
+        Trace trace;
+        for (std::size_t i = 0; i < 2400; ++i) {
+            const Page page = i < 600 ? i % 37 : i < 1200 ? rng() % 17
+                : i < 1800 ? (rng() % 5 == 0 ? rng() : rng() % 7) : i % 83;
+            trace.push_back(page);
+        }
+        for (const auto capacity : {1U, 2U, 5U, 10U, 20U, 50U, 100U}) {
+            const paging::AdaptiveOptions options{4,16,4};
+            paging::OnlineAdaptive online(capacity, seed, options);
+            std::vector<paging::Event> events;
+            for (const Page page : trace) events.push_back(online.access(page));
+            auto result = online.result();
+            result.events = events;
+            validate_events(trace, capacity, result);
+            check(result.faults >= paging::simulate(trace, capacity, Algorithm::Opt).faults, "V4 cannot beat exact OPT");
+            check(std::accumulate(result.expert_uses.begin(), result.expert_uses.end(), std::size_t{0}) == trace.size(), "V4 expert accounting");
+            check(result.history_peak <= 16 * capacity + 32, "V4 page metadata bounded");
+            check(result.context_history_peak <= std::max(256U, 64 * capacity), "V4 sequence metadata bounded");
+            const auto simulated = paging::simulate(trace, capacity, Algorithm::Adaptive, seed, true, options);
+            for (std::size_t i = 0; i < trace.size(); ++i) {
+                check(events[i].hit == simulated.events[i].hit && events[i].frame == simulated.events[i].frame &&
+                      events[i].evicted == simulated.events[i].evicted, "V4 vector wrapper matches one-page streaming API");
+            }
+            Trace renamed;
+            for (Page p : trace) renamed.push_back((p * 0x9e3779b97f4a7c15ULL) ^ 0xdeadbeef87654321ULL);
+            const auto relabeled = paging::simulate(renamed, capacity, Algorithm::Adaptive, seed, true, options);
+            for (std::size_t i = 0; i < trace.size(); ++i) {
+                check(events[i].hit == relabeled.events[i].hit && events[i].frame == relabeled.events[i].frame,
+                      "V4 invariant under arbitrary bijective page renaming");
+            }
+            for (std::size_t length : {17U, 173U, 723U, 1901U}) {
+                const Trace prefix(trace.begin(), trace.begin()+static_cast<std::ptrdiff_t>(length));
+                const auto partial = paging::simulate(prefix, capacity, Algorithm::Adaptive, seed, true, options);
+                for (std::size_t i = 0; i < length; ++i) check(partial.events[i].evicted == events[i].evicted &&
+                    partial.events[i].hit == events[i].hit && partial.events[i].frame == events[i].frame,
+                    "V4 prefix independent of unknown future");
+            }
+        }
+    }
+    for (const auto options : {paging::AdaptiveOptions{0,16,4}, {65,16,4}, {4,0,4}, {4,65,4}}) {
+        bool rejected = false;
+        try { paging::OnlineAdaptive invalid(50, 0, options); } catch (const std::invalid_argument&) { rejected = true; }
+        check(rejected, "V4 validates raw options before capacity scaling");
+    }
+}
+
 int main() {
     try {
         const Trace belady{1,2,3,4,1,2,5,1,2,3,4,5};
@@ -273,6 +324,7 @@ int main() {
         check(random_victims.size() == 3, "random can select every resident page");
         online_and_adaptive_checks();
         exhaustive();
+        v4_streaming_checks();
         std::cout << "PASS: " << checks << " checks, including 1,093 exhaustive traces across 4 capacities and 7 algorithms\n";
         return 0;
     } catch (const std::exception& error) {

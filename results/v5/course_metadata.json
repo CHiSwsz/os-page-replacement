@@ -1,0 +1,96 @@
+{
+  "generated_at_utc": "2026-10-29T05:10:47.235648+00:00",
+  "suite": "course",
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29
+  ],
+  "frames": [
+    5,
+    10,
+    20,
+    50,
+    100
+  ],
+  "rows": 2500,
+  "datasets": [
+    {
+      "name": "qsort",
+      "path": "data/sort1.txt",
+      "sha256": "2c93d419c3fc44c1f694fe0063e1ee808096204fd1753ffd7caf5b4889e7d67b",
+      "references": 524,
+      "unique_pages": 192
+    },
+    {
+      "name": "lu",
+      "path": "data/lu.txt",
+      "sha256": "cb107ef1ec39aa860c00b03ff5461321e4f2cfdf629269e0fa8e03a4d533bdd7",
+      "references": 41832,
+      "unique_pages": 531
+    },
+    {
+      "name": "mm16",
+      "path": "data/mm16.txt",
+      "sha256": "745a77dd05e800a10da1443befa02b8dd4a103305cf5a04b6e5626763c7aa57a",
+      "references": 9075,
+      "unique_pages": 515
+    },
+    {
+      "name": "mm32",
+      "path": "data/mm32.txt",
+      "sha256": "bdbc4ac696998ce5dc5dfaa6206bc50773990469a13d68d38dd6a6262db2bd1a",
+      "references": 67235,
+      "unique_pages": 1667
+    }
+  ],
+  "interpretation": "Public course traces used for development and parameter selection.",
+  "frozen_algorithm": {
+    "version": 5,
+    "frozen_at_utc": "2026-10-29T05:09:48.943021+00:00",
+    "selection_data": "Four public course traces and ten previously used constructed development traces; seed 0. No V5 holdout generated or examined before freeze.",
+    "selected": "25 experts; delayed conditional clustered reuse distribution; decay .98, 16 clusters, censored penalty horizon max(64,8F), minimum 4 labels; controller horizon max(32,8F), warmup 32, interval W/8, margin max(1,W/20), start last-gap",
+    "selection_result_seed0": {
+      "course_mean_faults": 16688.45,
+      "development_mean_faults": 4831.54
+    },
+    "prototype_reproduction": "Production matches all 70 selected development cases exactly for faults and policy switches, including label permutation safety and score memoization.",
+    "source_sha256": {
+      "src/learned.cpp": "859cb754dfffdbacd2d816b18950ef6a8a21d790906ad09170ae3f7ae00c971f",
+      "src/reuse_model.hpp": "76c0900c215eafb2040066659af90bafd3a6e2a0e9d63a81e78cd76979bc1767",
+      "src/paging.cpp": "1305f5bb00cf45c11af4ecdd1e0138ba8cfe9aa6f8d4cebf089558cbddebdfe9",
+      "src/context.cpp": "c830e0eb05a65834872531a519be4c8402ea969c9e319eb574a458b8a4291770",
+      "src/adaptive.cpp": "3fd4042fc64643863aaaefac6bf47229e7178207aa19eb8b43112d96c1dedba0",
+      "include/learned.hpp": "2044a7401f0552783e126877734fd4e414c7a651c5636f9d9e769c55bd16a419",
+      "include/paging.hpp": "2fe74e0dae2b8c384a4c8bd75c2d061ea3b2d479ddda6b5d04b01e3ca185cea6"
+    }
+  },
+  "script_sha256": "5c1bc97c6f633f18e47e77873860de82620ae9822e438cfbdb2fd6f350020c28"
+}

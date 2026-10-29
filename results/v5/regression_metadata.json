@@ -1,0 +1,124 @@
+{
+  "generated_at_utc": "2026-10-29T05:12:08.622115+00:00",
+  "suite": "regression",
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29
+  ],
+  "frames": [
+    5,
+    10,
+    20,
+    50,
+    100
+  ],
+  "rows": 5000,
+  "datasets": [
+    {
+      "name": "alternating_loops",
+      "path": "results/v4/holdout_traces/alternating_loops.txt",
+      "sha256": "d10cc60ae268f28bee202610646b4b0c44471a5a2479ca109dc77afdfd1c16c8",
+      "references": 12000,
+      "unique_pages": 250
+    },
+    {
+      "name": "bursts_long_scans",
+      "path": "results/v4/holdout_traces/bursts_long_scans.txt",
+      "sha256": "034da0e17829e3ece2e3e4c8a9a58d7d3447e4f7fb921152b96a2f2ad7788fa9",
+      "references": 10200,
+      "unique_pages": 7208
+    },
+    {
+      "name": "drifting_popularity",
+      "path": "results/v4/holdout_traces/drifting_popularity.txt",
+      "sha256": "0cba231217d8d2e89650c2b80b856677bd62b5ef09bb9cd2f2e7e649d8dde084",
+      "references": 12000,
+      "unique_pages": 1498
+    },
+    {
+      "name": "markov_blocks",
+      "path": "results/v4/holdout_traces/markov_blocks.txt",
+      "sha256": "d4d441a0ebe8b3aa21df898e2cef975dbe94a86f2fef8f460bf64d57c2cdac36",
+      "references": 12000,
+      "unique_pages": 640
+    },
+    {
+      "name": "noisy_cycle_101",
+      "path": "results/v4/holdout_traces/noisy_cycle_101.txt",
+      "sha256": "1c7e1ff7c5013622f58a9309d4519cea16e5096e9611c64a05a1c797c5cf82c1",
+      "references": 10100,
+      "unique_pages": 201
+    },
+    {
+      "name": "uniform_2048",
+      "path": "results/v4/holdout_traces/uniform_2048.txt",
+      "sha256": "ceb16358d8653eda727b335821cda8a88159adcd483c12572a545571a7c1a007",
+      "references": 12000,
+      "unique_pages": 2040
+    },
+    {
+      "name": "zipf_1_05",
+      "path": "results/v4/holdout_traces/zipf_1_05.txt",
+      "sha256": "0e25adfb100ce5fb50497ce70a1ccc64156cf03a14927dc1e2d8fd09eb69eca0",
+      "references": 12000,
+      "unique_pages": 930
+    },
+    {
+      "name": "zipf_1_5",
+      "path": "results/v4/holdout_traces/zipf_1_5.txt",
+      "sha256": "564506940735880b7ef8afa2eeab98b64eb287a2892d28e19a7b9bdad28d2991",
+      "references": 12000,
+      "unique_pages": 483
+    }
+  ],
+  "interpretation": "Previously inspected V4 holdout; now an existing regression suite, not a fresh blind test.",
+  "frozen_algorithm": {
+    "version": 5,
+    "frozen_at_utc": "2026-10-29T05:09:48.943021+00:00",
+    "selection_data": "Four public course traces and ten previously used constructed development traces; seed 0. No V5 holdout generated or examined before freeze.",
+    "selected": "25 experts; delayed conditional clustered reuse distribution; decay .98, 16 clusters, censored penalty horizon max(64,8F), minimum 4 labels; controller horizon max(32,8F), warmup 32, interval W/8, margin max(1,W/20), start last-gap",
+    "selection_result_seed0": {
+      "course_mean_faults": 16688.45,
+      "development_mean_faults": 4831.54
+    },
+    "prototype_reproduction": "Production matches all 70 selected development cases exactly for faults and policy switches, including label permutation safety and score memoization.",
+    "source_sha256": {
+      "src/learned.cpp": "859cb754dfffdbacd2d816b18950ef6a8a21d790906ad09170ae3f7ae00c971f",
+      "src/reuse_model.hpp": "76c0900c215eafb2040066659af90bafd3a6e2a0e9d63a81e78cd76979bc1767",
+      "src/paging.cpp": "1305f5bb00cf45c11af4ecdd1e0138ba8cfe9aa6f8d4cebf089558cbddebdfe9",
+      "src/context.cpp": "c830e0eb05a65834872531a519be4c8402ea969c9e319eb574a458b8a4291770",
+      "src/adaptive.cpp": "3fd4042fc64643863aaaefac6bf47229e7178207aa19eb8b43112d96c1dedba0",
+      "include/learned.hpp": "2044a7401f0552783e126877734fd4e414c7a651c5636f9d9e769c55bd16a419",
+      "include/paging.hpp": "2fe74e0dae2b8c384a4c8bd75c2d061ea3b2d479ddda6b5d04b01e3ca185cea6"
+    }
+  },
+  "script_sha256": "5c1bc97c6f633f18e47e77873860de82620ae9822e438cfbdb2fd6f350020c28"
+}

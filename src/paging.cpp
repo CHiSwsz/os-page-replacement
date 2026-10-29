@@ -1,4 +1,5 @@
 #include "paging.hpp"
+#include "learned.hpp"
 
 #include <algorithm>
 #include <charconv>
@@ -33,25 +34,31 @@ Algorithm parse_algorithm(const std::string& value) {
     throw std::invalid_argument("unknown algorithm: " + value);
 }
 
+std::optional<Page> parse_page_line(std::string line, std::size_t line_number, unsigned base) {
+        if (base != 10 && base != 16) throw std::invalid_argument("page base must be 10 or 16");
+        if (line_number == 1 && line.compare(0, 3, "\xef\xbb\xbf") == 0) line.erase(0, 3);
+        const auto first = line.find_first_not_of(" \t\r\n\v\f");
+        if (first == std::string::npos) return {};
+        const auto last = line.find_last_not_of(" \t\r\n\v\f");
+        std::string token = line.substr(first, last - first + 1);
+        if (base == 16 && token.size() >= 2 && token[0] == '0' && (token[1] == 'x' || token[1] == 'X')) {
+            token.erase(0, 2);
+        }
+        Page page = 0;
+        const auto parsed = std::from_chars(token.data(), token.data() + token.size(), page, static_cast<int>(base));
+        if (token.empty() || parsed.ec != std::errc{} || parsed.ptr != token.data() + token.size()) {
+            throw std::invalid_argument(std::string("invalid ") + (base == 16 ? "hexadecimal" : "decimal") + " page number on line " + std::to_string(line_number));
+        }
+        return page;
+}
+
 std::vector<Page> read_trace(std::istream& input) {
     std::vector<Page> trace;
     std::string line;
     std::size_t line_number = 0;
     while (std::getline(input, line)) {
-        ++line_number;
-        const auto first = line.find_first_not_of(" \t\r\n\v\f");
-        if (first == std::string::npos) continue;
-        const auto last = line.find_last_not_of(" \t\r\n\v\f");
-        std::string token = line.substr(first, last - first + 1);
-        if (token.size() >= 2 && token[0] == '0' && (token[1] == 'x' || token[1] == 'X')) {
-            token.erase(0, 2);
-        }
-        Page page = 0;
-        const auto parsed = std::from_chars(token.data(), token.data() + token.size(), page, 16);
-        if (token.empty() || parsed.ec != std::errc{} || parsed.ptr != token.data() + token.size()) {
-            throw std::invalid_argument("invalid hexadecimal page number on line " + std::to_string(line_number));
-        }
-        trace.push_back(page);
+        const auto page = parse_page_line(line, ++line_number);
+        if (page) trace.push_back(*page);
     }
     if (input.bad()) throw std::runtime_error("failed to read trace");
     return trace;
@@ -87,7 +94,10 @@ Result simulate(const std::vector<Page>& trace, std::size_t capacity,
                 Algorithm algorithm, std::uint64_t seed, bool record_events, AdaptiveOptions options) {
     if (capacity == 0) throw std::invalid_argument("frame count must be positive");
     (void)name(algorithm);  // Reject invalid enum values even for empty traces.
-    if (algorithm == Algorithm::Adaptive) return simulate_adaptive(trace, capacity, seed, record_events, options);
+    if (algorithm == Algorithm::Adaptive) {
+        if (options.version == 5) return simulate_v5(trace, capacity, seed, record_events, options);
+        return simulate_adaptive(trace, capacity, seed, record_events, options);
+    }
     Result result;
     result.references = trace.size();
     if (record_events) result.events.reserve(trace.size());

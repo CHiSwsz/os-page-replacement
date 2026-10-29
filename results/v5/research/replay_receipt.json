@@ -1,0 +1,16 @@
+{
+  "note": "All outputs of historical driver revisions replayed byte-identically with the final version; source hashes in active metadata now refer to the actual replayed source. No selected parameter or frozen V5 rule changed.",
+  "driver_sha256": "7ff323c3e6c1d00da34e349cdced189be992b5029676edcb8bdacdd5a10356aa",
+  "replayed_outputs": {
+    "context_controller_sweep.csv": "3de8b3400b23a3440684e34eec5570401ce845d915eba6797d247ed9ccc7f5f8",
+    "predictors_context.csv": "b17646c300ed2d4b1ba6813ea8deefa985df0d0efc73fad2c50c7c0a58be000c",
+    "context_samples32.csv": "e53dd3f2d0f5695aaa8d617efc183c118e26a09f0cf65320bfcf36a192f21b0e",
+    "context_samples64.csv": "0e74301a2e3c2042f348f5e5c75eddd2444a00923f2a0b1c810b0950e2daf23c",
+    "context_samples8.csv": "4e48c7bf13b936ded059b0b17f7587f4a79bb0776771cb370ceeaf31ad36a6a3",
+    "controller_sweep.csv": "0a45e582534cc17187775f0e50a0a0ebb6459a02b5e62fb594b618ea8370351b",
+    "predictors_initial.csv": "210be851e3121e57b5bf81b7f6bbd95da608385e45e793a1479e7690ff7b3cda",
+    "density_controller_sweep.csv": "111b5e038df0a6ed6a3abd7f3787f0ac93a0b8a99ccd21f2125ae4aba6e7f0b3",
+    "predictors_density.csv": "c8174889589e0db2157455b5985fa5a65946e29eca9700c5fe7c81e927a7bfa3",
+    "predictors_trend.csv": "55d9fcdc5ec0198176cdd248a326306577a6c717f0697cf89c0f404b52d9d57c"
+  }
+}

@@ -1,0 +1,138 @@
+{
+  "generated_at_utc": "2026-10-29T05:13:10.969681+00:00",
+  "suite": "holdout",
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29
+  ],
+  "frames": [
+    5,
+    10,
+    20,
+    50,
+    100
+  ],
+  "rows": 6250,
+  "datasets": [
+    {
+      "name": "zipf_0.8",
+      "path": "results/v5/holdout_traces/zipf_0.8.txt",
+      "sha256": "56bed4532b266f53f5f168c29aa0ba5c4e024bfc1c06c2de97d391702bdcd0d5",
+      "references": 14000,
+      "unique_pages": 1488
+    },
+    {
+      "name": "zipf_1.25",
+      "path": "results/v5/holdout_traces/zipf_1.25.txt",
+      "sha256": "32f3ad305b6d265c708ff76a57bab5c178ee1d175ceb71d911006e623e1af1ef",
+      "references": 14000,
+      "unique_pages": 980
+    },
+    {
+      "name": "shuffled_block_reuse",
+      "path": "results/v5/holdout_traces/shuffled_block_reuse.txt",
+      "sha256": "69fc881822656f998783bc4694674be85f4ac050fcc9a7427cfa90f00a4e5b61",
+      "references": 12560,
+      "unique_pages": 157
+    },
+    {
+      "name": "changing_loop_periods",
+      "path": "results/v5/holdout_traces/changing_loop_periods.txt",
+      "sha256": "6804804afab14c3f6d1671b3847db425a72530235d7d7961082a4e9fcc278643",
+      "references": 13200,
+      "unique_pages": 373
+    },
+    {
+      "name": "hot_set_with_new_scans",
+      "path": "results/v5/holdout_traces/hot_set_with_new_scans.txt",
+      "sha256": "b36c528bcd332bf3028eb9c30d9527107555c557b4402f4845098310b299607f",
+      "references": 13200,
+      "unique_pages": 8423
+    },
+    {
+      "name": "interleaved_programs",
+      "path": "results/v5/holdout_traces/interleaved_programs.txt",
+      "sha256": "bfb3fa3d33c7391c609faeea1de54a60ffa7e4e906a59273ff97bffdae1554b6",
+      "references": 14000,
+      "unique_pages": 330
+    },
+    {
+      "name": "matrix_ikj_24",
+      "path": "results/v5/holdout_traces/matrix_ikj_24.txt",
+      "sha256": "a3d93a295f6382904e09da7c591e873e30137b629db382c23d3602f9b3f8b7d8",
+      "references": 41472,
+      "unique_pages": 108
+    },
+    {
+      "name": "double_buffer_stencil",
+      "path": "results/v5/holdout_traces/double_buffer_stencil.txt",
+      "sha256": "52ff14cfb0fa6ebc5aa6b91075547caad3f35679cb104711e4608ee1260e685d",
+      "references": 18432,
+      "unique_pages": 82
+    },
+    {
+      "name": "capacity_boundaries",
+      "path": "results/v5/holdout_traces/capacity_boundaries.txt",
+      "sha256": "97ea710149de4953525f5c672a9b2012476f5130f82c46a82ee887e4bcd16d32",
+      "references": 9900,
+      "unique_pages": 101
+    },
+    {
+      "name": "uniform_997",
+      "path": "results/v5/holdout_traces/uniform_997.txt",
+      "sha256": "2fcdd1c49e62f41f7e02c9cb7891e63d4cc04e79ec8e499749292b18bd8f991e",
+      "references": 14000,
+      "unique_pages": 997
+    }
+  ],
+  "interpretation": "Ten new constructed traces generated after V5 freeze, never used to change V5; not instructor hidden tests.",
+  "frozen_algorithm": {
+    "version": 5,
+    "frozen_at_utc": "2026-10-29T05:09:48.943021+00:00",
+    "selection_data": "Four public course traces and ten previously used constructed development traces; seed 0. No V5 holdout generated or examined before freeze.",
+    "selected": "25 experts; delayed conditional clustered reuse distribution; decay .98, 16 clusters, censored penalty horizon max(64,8F), minimum 4 labels; controller horizon max(32,8F), warmup 32, interval W/8, margin max(1,W/20), start last-gap",
+    "selection_result_seed0": {
+      "course_mean_faults": 16688.45,
+      "development_mean_faults": 4831.54
+    },
+    "prototype_reproduction": "Production matches all 70 selected development cases exactly for faults and policy switches, including label permutation safety and score memoization.",
+    "source_sha256": {
+      "src/learned.cpp": "859cb754dfffdbacd2d816b18950ef6a8a21d790906ad09170ae3f7ae00c971f",
+      "src/reuse_model.hpp": "76c0900c215eafb2040066659af90bafd3a6e2a0e9d63a81e78cd76979bc1767",
+      "src/paging.cpp": "1305f5bb00cf45c11af4ecdd1e0138ba8cfe9aa6f8d4cebf089558cbddebdfe9",
+      "src/context.cpp": "c830e0eb05a65834872531a519be4c8402ea969c9e319eb574a458b8a4291770",
+      "src/adaptive.cpp": "3fd4042fc64643863aaaefac6bf47229e7178207aa19eb8b43112d96c1dedba0",
+      "include/learned.hpp": "2044a7401f0552783e126877734fd4e414c7a651c5636f9d9e769c55bd16a419",
+      "include/paging.hpp": "2fe74e0dae2b8c384a4c8bd75c2d061ea3b2d479ddda6b5d04b01e3ca185cea6"
+    }
+  },
+  "script_sha256": "5c1bc97c6f633f18e47e77873860de82620ae9822e438cfbdb2fd6f350020c28"
+}

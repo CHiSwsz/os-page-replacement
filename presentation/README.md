@@ -1,3 +1,19 @@
+# 当前汇报：V5
+
+使用 [contest-v5.pptx](contest-v5.pptx)、[PDF](contest-v5.pdf) 和 [V5 讲稿](V5_SPEAKER_NOTES.md)。15 页，其中最后 4 页为完整课程表。
+
+`python build_v5.py` 从 `results/v5/` 生成课件，`python ../scripts/verify_v5.py` 校验原生图表/表格数据。旧 V4/V3 课件继续保留，默认程序已是 V5，请不要混用旧演练数字。
+
+---
+
+# 当前 V4 汇报
+
+[新版 17 页 PowerPoint](contest-v4.pptx) · [PDF 预览](contest-v4.pdf) · [讲稿和答辩](V4_SPEAKER_NOTES.md)
+
+前 13 页约 9 分钟，后 4 页为详细数据附录。由 `build_v4.py` 和 `results/v4/` 直接生成；不需要旧外部模板。可用 `.venv/bin/python presentation/build_v4.py` 重建。实际渲染检查记录见 `validation-v4.json`。
+
+## 原 V3 汇报存档
+
 # 汇报 PPT
 
 [下载 PowerPoint](page-replacement.pptx)。共 21 页，前 15 页约 10 分钟，后 6 页为详细缺页表、参数研究和复现说明。每页包含中文讲稿备注。

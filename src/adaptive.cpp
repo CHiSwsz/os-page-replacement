@@ -135,7 +135,19 @@ public:
 Result simulate_adaptive(const std::vector<Page>& trace, std::size_t capacity,
                          std::uint64_t seed, bool record_events, AdaptiveOptions options) {
     if (capacity == 0) throw std::invalid_argument("frame count must be positive");
-    if (options.version < 1 || options.version > 3) throw std::invalid_argument("adaptive version must be 1, 2 or 3");
+    if (options.version < 1 || options.version > 4) throw std::invalid_argument("adaptive version must be 1, 2, 3 or 4");
+    if (options.version == 4) {
+        OnlineAdaptive online(capacity, seed, options);
+        std::vector<Event> events;
+        if (record_events) events.reserve(trace.size());
+        for (const Page page : trace) {
+            const auto event = online.access(page);
+            if (record_events) events.push_back(event);
+        }
+        auto result = online.result();
+        result.events = std::move(events);
+        return result;
+    }
     auto window = scaled_limit(capacity, options.window_factor);
     const bool aligned = options.version >= 2 && capacity > 20;
     // Small capacities retain V1's fast reaction. Larger caches need enough

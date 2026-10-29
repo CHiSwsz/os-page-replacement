@@ -1,0 +1,14 @@
+{
+  "release_ctest": "2/2 passed",
+  "sanitizer_ctest": "2/2 passed (AddressSanitizer + UndefinedBehaviorSanitizer)",
+  "algorithm_assertions": 2519992,
+  "cli_tests": 9,
+  "legacy_replay": "1300 recorded runs reproduced; all historical raw CSVs unchanged",
+  "v4_replay": "1900 course runs reproduced into build/reproduced-v4; raw.csv and summary.csv byte-identical",
+  "artifact_audit": "verify_artifacts.py, verify_v4.py, presentation/verify_data.py: PASS",
+  "launcher_and_direct_build": "bash run.sh and direct C++17 compile return identical mm32 JSON",
+  "million_reference_scan": "all five capacities produce 1,000,000 faults; peak RSS 9536 KiB",
+  "windows": "launcher provided; no native Windows runtime testing",
+  "remote_ci": "Not run: GitHub integration rejected creation of the PR branch with HTTP 403",
+  "windows_cross_compile": "MinGW-w64 x86-64 C++17 static link succeeded; PE imports only KERNEL32.dll and msvcrt.dll. No Windows runtime test."
+}

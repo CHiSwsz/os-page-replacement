@@ -1,0 +1,10 @@
+{
+  "slides": 17,
+  "speaker_notes": 17,
+  "numeric_check": "python3 scripts/verify_v4.py: PASS (native chart values and four appendix tables equal recorded CSV)",
+  "render_tool": "LibreOffice 7.3.7.2 30(Build:2)",
+  "rendered_pdf_pages": 17,
+  "visual_review": "All 17 slides inspected in rendered contact sheet; no clipped or overlapping text observed. Windows PowerPoint not tested.",
+  "pptx_sha256": "511110939ae271e0feea548c0ccb8bea7ee703ea56d77e85adad7f90d8179b4d",
+  "pdf_sha256": "21f1c8eabc2f8f0c11c858d0bd2c7ac9e6e4b2df5951630c4cf655aadb18d5e8"
+}
