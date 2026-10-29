@@ -1,8 +1,8 @@
-# 当前汇报：V5
+# 当前汇报（最终版）
 
-使用 [contest-v5.pptx](contest-v5.pptx)、[PDF](contest-v5.pdf) 和 [V5 讲稿](V5_SPEAKER_NOTES.md)。15 页，其中最后 4 页为完整课程表。
+使用 [contest-v5.pptx](contest-v5.pptx)、[PDF](contest-v5.pdf) 和 [讲稿](V5_SPEAKER_NOTES.md)。14 页正文约 9 分钟 + 4 页完整数据附录，全中文，页面不出现版本号，核心展示 FIFO / LRU / Second chance / MIN / 我们的算法五种算法。
 
-`python build_v5.py` 从 `results/v5/` 生成课件，`python ../scripts/verify_v5.py` 校验原生图表/表格数据。旧 V4/V3 课件继续保留，默认程序已是 V5，请不要混用旧演练数字。
+由 `python build_final.py` 生成（数据来自 `results/v5/` 与 `param_sweep.csv`）。`param_sweep.csv` 为用比赛程序对四条课程轨迹扫描窗口系数、历史系数的结果。旧的 `build_v5.py`/`verify_v5.py` 对应上一版课件，已不再生成当前文件。
 
 ---
 
