@@ -14,7 +14,7 @@ fork="$login/os-page-replacement"
 if [ "$login" = 'CHiSwsz' ]; then
     fork="$upstream"
 elif ! gh repo view "$fork" >/dev/null 2>&1; then
-    gh repo fork "$upstream" --clone=false --remote=false
+    gh repo fork "$upstream" --clone=false
 fi
 if [ "$fork" != "$upstream" ]; then
     parent=''
